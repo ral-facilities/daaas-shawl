@@ -1,0 +1,49 @@
+{% extends "base.jinja2" %}
+{% block content %}
+
+  {% if error_msg %}
+    <div class="w3-panel w3-red">
+      <h3>Error:</h3>
+      <p>{{ error_msg }}</p>
+    </div>
+  {% endif %}
+
+  <div>
+  <div class="w3-container w3-pale-green w3-display-middle w3-card-4" style="width: 500px;">
+
+    <p><b><big>Shawl</big></b> is an interface to
+      <a href="https://en.wikipedia.org/wiki/Slurm_Workload_Manager">
+        <b>SLURM {{ icon('external-link') }} </b>
+      </a>
+      cluster computing systems and
+      <a href="https://www.scarf.rl.ac.uk/index.html">
+        <b>SCARF {{ icon('external-link') }}</b>
+      </a>
+      in particular. To begin, please enter your SLURM system credentials:</p>
+
+    <form method="POST">
+
+      <p>
+        <label><b>{{ icon('server') }} SLURM server:</b></label>
+        <input class="w3-input" type="text" name="slurm_hostname" value="ui1.scarf.rl.ac.uk"></input>
+      </p>
+      <p>
+        <label><b>{{ icon('user') }} Username:</b></label>
+        <input class="w3-input" type="text" name="slurm_username"></input>
+      </p>
+
+      <p>
+        <label><b>{{ icon('key') }} Password:</b></label>
+        <input class="w3-input" type="password" name="slurm_password"></input>
+      </p>
+
+      <p>
+        <button class="w3-input w3-btn w3-blue">{{ icon('sign-in') }} Sign in</button>
+      <p>
+
+      </p>
+    </form>
+  </div>
+  </div>
+
+{% endblock content %}

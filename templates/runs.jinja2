@@ -1,0 +1,73 @@
+{% extends 'base.jinja2' %}
+
+{% block style %}
+  .truncate {
+  width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  }
+{% endblock %}
+
+{% block content %}
+  <header class="w3-container w3-green">
+    <h2><a href="{{ url_for('index') }}">{{ icon('bank') }} Index</a></h2>
+  </header>
+
+  <div class="w3-container w3-panel w3-white">
+    <p>
+      <big>
+        Hi! You are logged in to <b>{{ state['slurm_hostname'] }}</b> as <b>{{ state['slurm_username'] }}</b>.
+      </big>
+    <p>
+    <h3>Actions</h3>
+    <p>
+      <a class = "w3-btn w3-blue" href="{{ url_for('new_run') }}">
+        {{ icon('plus-circle') }} New run
+      </a>
+      <a class = "w3-btn w3-teal" href="{{ url_for('documentation') }}">
+        {{ icon('book') }} Documentation
+      </a>
+      <a class = "w3-btn w3-red" href="{{ url_for('signout') }}">
+        {{ icon('sign-out') }} Sign out
+      </a>
+    </p>
+
+    <h3>List of runs</h3>
+    <p>
+      <table class="w3-table w3-bordered w3-card-4 w3-large w3-hoverable" style="width: 100%; white-space: nowrap; table-layout: fixed;">
+        <thead class="w3-pale-blue">
+          <th>Name</th>
+          <th>Status</th>
+          <th>Job File</th>
+          <th>Added</th>
+          <th>Actions</th>
+        </thead>
+        <tbody>
+          {% for run in state["runs"]|reverse %}
+            <tr>
+              <td style="overflow: hidden; text-overflow: ellipsis">{{ run.get("run_name") }}</td>
+              <td style="overflow: hidden; text-overflow: ellipsis">{{ slurm_state_pretty(run.get("status")) }}</td>
+              <td style="overflow: hidden; text-overflow: ellipsis">{{ run.get("job_file") }}</td>
+              <td style="overflow: hidden; text-overflow: ellipsis">{{ nice_time(time_now, run.get("added")) }}</td>
+
+              {% set actions = slurm_state_to_actions(run.get("status")) %}
+              <td>
+                {% if "cancel" in actions %}
+                  <a href="{{ url_for('stop', run_uuid=run.get('run_uuid')) }}">{{ icon('stop-circle') }} Cancel</a>
+                {% elif "download" in actions %}
+                  <a href="{{ url_for('download', run_uuid=run.get('run_uuid')) }}">{{ icon('download') }} Download</a>
+                {% elif "remove" in actions %}
+                  <a href="{{ url_for('download', run_uuid=run.get('run_uuid')) }}">{{ icon('trash') }} Remove</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </p>
+    <br/>
+    <br/>
+  </div>
+
+{% endblock %}

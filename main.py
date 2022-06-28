@@ -1,0 +1,427 @@
+"""Web interface to SLURM."""
+
+import datetime
+import json
+import logging
+import pathlib
+import sys
+import time
+import uuid
+from typing import Any
+
+import argh
+import flask
+import humanize
+import paramiko
+import scp
+import xdg
+
+app = flask.Flask(__name__)
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+def icon(name):
+    """Return string for template fontawesome icons.
+
+    example: icon('trash')
+    """
+    return f'<i class="fa fa-{name} fa-fw"></i>'
+
+
+def icon_spin(name):
+    """Return string for template fontawesome icons and spin it.
+
+    example: icon('cog')
+    """
+    return f'<i class="fa fa-{name} fa-spin fa-fw"></i>'
+
+
+def nice_duration(t):
+    """Return a nicer representation of how long something took."""
+    return humanize.naturaldelta(datetime.timedelta(seconds=t)).capitalize()
+
+
+def nice_time(time_now, t2):
+    """Return a nicer representation of how long ago something occured."""
+    return humanize.naturaltime(
+        datetime.timedelta(seconds=(time_now - t2))
+    ).capitalize()
+
+
+def slurm_state_pretty(slurm_state):
+    """Pretty print the slurm state."""
+    if slurm_state == "R":
+        return f"{ icon_spin('cog') } Running"
+    elif slurm_state == "PD":
+        return f"{ icon_spin('cog') } Pending"
+    elif slurm_state == "F":
+        # this is a state added by update_runs()
+        return f"{ icon('check-circle') } Finished"
+    elif slurm_state == "E-jobfilemissing":
+        return f"{ icon('exclamation-circle') } Error: no job file found"
+    elif slurm_state == "E-sbatcherror":
+        return f"{ icon('exclamation-circle') } Error: sbatch error"
+    else:
+        return slurm_state
+
+
+def slurm_state_to_actions(slurm_state):
+    """Return array denoting what operations can be done in the given slurm state."""
+    if slurm_state == "R":
+        return ["cancel"]
+    elif slurm_state == "PD":
+        return ["cancel"]
+    elif slurm_state == "F":
+        # this is a state added by update_runs()
+        return ["download"]
+    elif slurm_state[0:2] == "E-":
+        # some error, allow deletion
+        return ["remove"]
+    else:
+        return []
+
+
+@app.context_processor
+def inject_globals():
+    """Make some functions available in the templates."""
+    return {
+        "time_now": int(time.time()),
+        "nice_time": nice_time,
+        "icon": icon,
+        "slurm_state_pretty": slurm_state_pretty,
+        "slurm_state_to_actions": slurm_state_to_actions,
+    }
+
+
+def state_defaults():
+    """Return the default/empty state."""
+    return {
+        "slurm_hostname": "ui1.scarf.rl.ac.uk",
+        "slurm_username": "",
+        "slurm_password": "",
+        "runs": [],
+    }
+
+
+def load_app_state():
+    """Load application config/state."""
+    global state
+    if not state_file.is_file():
+        return
+    try:
+        with open(state_file) as f:
+            state = json.loads(f.read())
+    except Exception:
+        logging.exception(
+            f"An error occured while reading {state_file}. Please contact your system administrator."
+        )
+        sys.exit(1)
+
+
+def save_app_state():
+    """Save application config/state."""
+    global state
+    try:
+        with open(state_file, "w") as f:
+            f.write(json.dumps(state, indent=4))
+    except Exception:
+        logging.exception(
+            f"An error occured while writing {state_file}. Please contact your system administrator."
+        )
+        sys.exit(1)
+
+
+state_file = pathlib.Path(xdg.BaseDirectory.xdg_data_home) / "shawl.json"
+
+state: dict[str, Any] = state_defaults()
+
+load_app_state()
+
+
+def connect(hostname, username, password):
+    """Establish up a new SSH connection."""
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(hostname=hostname, username=username, password=password)
+    return client
+
+
+def connect2():
+    """Connect with saved credentials and save to global variable 'conn'."""
+    global conn
+    conn = connect(
+        state["slurm_hostname"], state["slurm_username"], state["slurm_password"]
+    )
+
+
+conn = None
+
+
+@app.route("/")
+def index():
+    """Index page. Redirect to login."""
+    return flask.redirect(flask.url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Login page."""
+    global conn
+    if flask.request.method == "GET":
+        error = flask.request.args.get("error")
+        error_msg = None
+        if error:
+            error_msg = "Authentication failed."
+        return flask.render_template(
+            "login.jinja2", state=state, title="Shawl login", error_msg=error_msg
+        )
+
+    elif flask.request.method == "POST":
+        slurm_hostname = flask.request.form.get("slurm_hostname")
+        slurm_username = flask.request.form.get("slurm_username")
+        slurm_password = flask.request.form.get("slurm_password")
+
+        state["slurm_hostname"] = slurm_hostname
+        state["slurm_username"] = slurm_username
+        state["slurm_password"] = slurm_password
+        save_app_state()
+
+        try:
+            connect2()
+        except paramiko.ssh_exception.AuthenticationException:
+            return flask.redirect(flask.url_for("login", error=True))
+
+        return flask.redirect(flask.url_for("runs"))
+
+
+def get_remote_username():
+    """Get remote username. This might be different than what we logged in with."""
+    stdin, stdout, stderr = conn.exec_command("whoami")
+    my_username = stdout.read().decode().strip()
+    logging.debug(my_username)
+    stdin.close()
+    stdout.close()
+    stderr.close()
+    return my_username
+
+
+def get_my_remote_runs():
+    """Get my remote runs."""
+    my_username = get_remote_username()
+    stdin, stdout, stderr = conn.exec_command(f"squeue -u {my_username}")
+    runs = [line.split() for line in stdout.read().decode().split("\n")]
+    stdin.close()
+    stdout.close()
+    stderr.close()
+    ret_runs = {}
+    logging.debug(runs)
+    for run in runs[1:-1]:  # all lines except first and last
+        job_id = run[0]
+        status = run[4]
+        ret_runs = {job_id: {"status": status}}
+    logging.debug(ret_runs)
+    return ret_runs
+
+
+def update_runs():
+    """Synchronize local information with remote runs."""
+    local_runs = state["runs"]  # runs we know about
+    remote_runs = get_my_remote_runs()  # remote runs, pending and running
+    logging.debug(remote_runs)
+
+    for li in local_runs:
+        # update local status
+        ri = remote_runs.get(li["job_id"])
+        if ri:
+            li["status"] = ri["status"]
+        else:
+            # couldn't find it remotely, assume it's finished, unless the status
+            # is E, in which case keep the error state
+            if li["status"][0:2] != "E-":
+                li["status"] = "F"
+
+    state["runs"] = local_runs
+
+
+def is_connection_active():
+    """Check if paramiko connection is active."""
+    if not conn.get_transport() or not conn.get_transport().is_active():
+        return False
+    else:
+        return True
+
+
+def maybe_reconnect():
+    """Check if we need to reconnect to the slurm host."""
+    if is_connection_active():
+        logging.info("maybe_reconnect(): reconnecting")
+        connect2()
+
+
+@app.route("/runs")
+def runs():
+    """List SLURM runs and some actions."""
+    logging.debug(state)
+    if not conn:
+        return flask.redirect(flask.url_for("login"))
+
+    maybe_reconnect()
+    update_runs()
+    return flask.render_template("runs.jinja2", state=state, title="Runs")
+
+
+def run_run(run_name, run_local_dir):
+    """Run a job on slurm.
+
+    1. Find the job file name by looking at the local run directory.
+    We take the first job file found, but maybe the user should
+    be prompted to select it if there are multiple or an error
+    given if none are found. The assumption now is that these files
+    will be prepared by experts and users will only change the input
+    files. Another way to do this would be to have a central repo
+    of job files and then the run dir would only contain the input
+    files.
+
+    2. Create remote run directory
+    We create new uuid4 and then create the directory ~/runs/<uuid>
+    on the remote end.
+
+    3. Copy input files to remote run dir
+    All the files in the local run directory are copied to the remote
+    run directory.
+
+    4. Run sbatch
+    Now we run sbatch in the remote run directory, with the job file
+    we found in step 1.
+
+    TODO finish this
+    """
+    run_uuid = str(uuid.uuid4())
+    # find the job file name
+    job_files = list(pathlib.Path(run_local_dir).glob("*.job"))
+    if not job_files:
+        state["runs"].append(
+            {
+                "job_id": "",
+                "run_local_dir": run_local_dir,
+                "run_name": run_name,
+                "run_uuid": run_uuid,
+                "job_file": "Not found",
+                "added": int(time.time()),
+                "status": "E-jobfilemissing",
+            }
+        )
+        save_app_state()
+        return
+    job_file = job_files[0].name
+    # create remote run directory
+    remote_run_dir = f"runs/{run_uuid}"
+    maybe_reconnect()
+    conn.exec_command(f"mkdir -p {remote_run_dir}")
+    time.sleep(1)
+    # copy input files to remote run dir
+    files = pathlib.Path(run_local_dir).glob("*")
+    scpconn = scp.SCPClient(conn.get_transport())
+    scpconn.put(files, remote_path=remote_run_dir)
+    # run sbatch
+    # TODO check return code
+    cmd = f"cd {remote_run_dir} ; sbatch {job_file}"
+    stdin, stdout, stderr = conn.exec_command(cmd)
+    job_id = stdout.read()
+    retcode = stdout.channel.recv_exit_status()
+    status = "S"
+    if retcode != 0:
+        state["runs"].append(
+            {
+                "job_id": "",
+                "run_local_dir": run_local_dir,
+                "run_name": run_name,
+                "run_uuid": run_uuid,
+                "job_file": job_file,
+                "added": int(time.time()),
+                "status": "E-sbatcherror",
+            }
+        )
+        save_app_state()
+        return
+
+    logging.debug(job_id)
+    job_id = job_id.decode().split()[-1]
+    stdin.close()
+    stdout.close()
+    stderr.close()
+    # append to app state
+    state["runs"].append(
+        {
+            "job_id": job_id,
+            "run_local_dir": run_local_dir,
+            "run_name": run_name,
+            "run_uuid": run_uuid,
+            "job_file": job_file,
+            "added": int(time.time()),
+            "status": status,
+        }
+    )
+    save_app_state()
+
+
+@app.route("/stop/<run_uuid>")
+def stop(run_uuid):
+    """Stop a run that is in progress by running scancel on slurm host."""
+    # TODO
+    return flask.redirect(flask.url_for("runs"))
+
+
+@app.route("/download/<run_uuid>")
+def download(run_uuid):
+    """Download finished run directory by copying the remote run directory."""
+    # TODO
+    return flask.redirect(flask.url_for("runs"))
+
+
+@app.route("/documentation")
+def documentation():
+    """Show documentation."""
+    # TODO
+    return flask.redirect(flask.url_for("runs"))
+
+
+@app.route("/remove/<run_uuid>")
+def remove(run_uuid):
+    """Remove jobs that are in error state.
+
+    TODO offer remove functionality for finished runs?
+    """
+    # TODO
+    return flask.redirect(flask.url_for("runs"))
+
+
+@app.route("/new_run", methods=["GET", "POST"])
+def new_run():
+    """Display new run page and start new run."""
+    if not conn:
+        return flask.redirect(flask.get_url("login"))
+    if flask.request.method == "GET":
+        return flask.render_template("new_run.jinja2", title="Rew run")
+    elif flask.request.method == "POST":
+        run_name = flask.request.form.get("run_name")
+        run_local_dir = flask.request.form.get("run_local_dir")
+        run_run(run_name, run_local_dir)
+        return flask.redirect(flask.url_for("runs"))
+
+
+@app.route("/signout")
+def signout():
+    """Sign out by closing the connection."""
+    conn.close()
+    return flask.redirect(flask.url_for("login"))
+
+
+def main(port=7321, debug=True):
+    """Run flask server."""
+    app.run(port=port, debug=debug)
+
+
+if __name__ == "__main__":
+    argh.dispatch_command(main)
