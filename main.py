@@ -83,6 +83,8 @@ def slurm_state_to_default_action(slurm_state):
     elif slurm_state == "F":
         # this is a state added by update_runs()
         return ["download"]
+    if slurm_state == "E-downloadfailed":
+        return ["download"]
     elif slurm_state[0:2] == "E-":
         # some error, allow deletion
         return ["remove"]
