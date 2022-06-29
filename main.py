@@ -521,8 +521,19 @@ def signout():
     return flask.redirect(flask.url_for("login"))
 
 
+def update_stale_runs():
+    """Go through stale runs statuses and change them."""
+    for run in state["runs"]:
+        if run["status"] == "D":
+            run["status"] = "E-downloadfailed"
+        elif run["status"] == "U":
+            run["status"] = "E-uploadfailed"
+
+
 def main(port=7321, debug=True):
     """Run flask server."""
+    update_stale_runs()
+
     app.run(port=port, debug=debug)
 
 
