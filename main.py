@@ -31,7 +31,7 @@ def icon(name):
 def icon_spin(name):
     """Return string for template fontawesome icons and spin it.
 
-    example: icon('cog')
+    example: icon_spin('cog')
     """
     return f'<i class="fa fa-{name} fa-spin fa-fw"></i>'
 
