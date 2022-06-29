@@ -388,7 +388,6 @@ def run_run(run_name, run_local_dir):
     stdin, stdout, stderr = conn_run(cmd)
     job_id = stdout.read()
     retcode = stdout.channel.recv_exit_status()
-    status = "S"
     if retcode != 0:
         update_run_by_uuid(run_uuid, {"status": "E-sbatcherror"})
         save_app_state()
