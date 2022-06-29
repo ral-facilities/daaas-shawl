@@ -5,16 +5,15 @@ import json
 import logging
 import pathlib
 import sys
+import threading
 import time
 import uuid
-from typing import Any
 
 import argh
 import flask
 import humanize
 import paramiko
 import scp
-import xdg
 
 app = flask.Flask(__name__)
 
@@ -55,19 +54,28 @@ def slurm_state_pretty(slurm_state):
         return f"{ icon_spin('cog') } Running"
     elif slurm_state == "PD":
         return f"{ icon_spin('cog') } Pending"
+    elif slurm_state == "U":
+        return f"{ icon_spin('cog') } Uploading"
+    elif slurm_state == "D":
+        return f"{ icon_spin('cog') } Downloading"
     elif slurm_state == "F":
-        # this is a state added by update_runs()
         return f"{ icon('check-circle') } Finished"
+    elif slurm_state == "C":
+        return f"{ icon('exclamation-circle') } Cancelled"
     elif slurm_state == "E-jobfilemissing":
         return f"{ icon('exclamation-circle') } Error: no job file found"
     elif slurm_state == "E-sbatcherror":
         return f"{ icon('exclamation-circle') } Error: sbatch error"
+    elif slurm_state == "E-uploadfailed":
+        return f"{ icon('exclamation-circle') } Error: upload failed"
+    elif slurm_state == "E-downloadfailed":
+        return f"{ icon('exclamation-circle') } Error: download failed"
     else:
         return slurm_state
 
 
-def slurm_state_to_actions(slurm_state):
-    """Return array denoting what operations can be done in the given slurm state."""
+def slurm_state_to_default_action(slurm_state):
+    """Return array containing the default action for the given slurm state."""
     if slurm_state == "R":
         return ["cancel"]
     elif slurm_state == "PD":
@@ -77,6 +85,26 @@ def slurm_state_to_actions(slurm_state):
         return ["download"]
     elif slurm_state[0:2] == "E-":
         # some error, allow deletion
+        return ["remove"]
+    if slurm_state == "C":
+        return ["remove"]
+    else:
+        return []
+
+
+def slurm_state_to_all_actions(slurm_state):
+    """Return array denoting what operations can be done in the given slurm state."""
+    if slurm_state == "R":
+        return ["cancel"]
+    elif slurm_state == "PD":
+        return ["cancel"]
+    elif slurm_state == "F":
+        # this is a state added by update_runs()
+        return ["download", "remove"]
+    elif slurm_state[0:2] == "E-":
+        # some error, allow deletion
+        return ["remove"]
+    if slurm_state == "C":
         return ["remove"]
     else:
         return []
@@ -90,7 +118,7 @@ def inject_globals():
         "nice_time": nice_time,
         "icon": icon,
         "slurm_state_pretty": slurm_state_pretty,
-        "slurm_state_to_actions": slurm_state_to_actions,
+        "slurm_state_to_default_action": slurm_state_to_default_action,
     }
 
 
@@ -132,9 +160,9 @@ def save_app_state():
         sys.exit(1)
 
 
-state_file = pathlib.Path(xdg.BaseDirectory.xdg_data_home) / "shawl.json"
+state_file = pathlib.Path.home() / "shawl.json"
 
-state: dict[str, Any] = state_defaults()
+state = state_defaults()
 
 load_app_state()
 
@@ -156,6 +184,12 @@ def connect2():
 
 
 conn = None
+
+
+def conn_run(cmd):
+    """Wrap exec_command so we have some debug information."""
+    logging.info(f"running: {cmd}")
+    return conn.exec_command(cmd)
 
 
 @app.route("/")
@@ -190,6 +224,7 @@ def login():
         try:
             connect2()
         except paramiko.ssh_exception.AuthenticationException:
+            logging.exception("authentication error:")
             return flask.redirect(flask.url_for("login", error=True))
 
         return flask.redirect(flask.url_for("runs"))
@@ -197,7 +232,7 @@ def login():
 
 def get_remote_username():
     """Get remote username. This might be different than what we logged in with."""
-    stdin, stdout, stderr = conn.exec_command("whoami")
+    stdin, stdout, stderr = conn_run("whoami")
     my_username = stdout.read().decode().strip()
     logging.debug(my_username)
     stdin.close()
@@ -209,7 +244,7 @@ def get_remote_username():
 def get_my_remote_runs():
     """Get my remote runs."""
     my_username = get_remote_username()
-    stdin, stdout, stderr = conn.exec_command(f"squeue -u {my_username}")
+    stdin, stdout, stderr = conn_run(f"squeue -u {my_username}")
     runs = [line.split() for line in stdout.read().decode().split("\n")]
     stdin.close()
     stdout.close()
@@ -237,8 +272,8 @@ def update_runs():
             li["status"] = ri["status"]
         else:
             # couldn't find it remotely, assume it's finished, unless the status
-            # is E, in which case keep the error state
-            if li["status"][0:2] != "E-":
+            # is E-* or C in which case keep the local state
+            if li["status"][0:2] != "E-" and li["status"] not in ["C", "U", "D"]:
                 li["status"] = "F"
 
     state["runs"] = local_runs
@@ -246,7 +281,7 @@ def update_runs():
 
 def is_connection_active():
     """Check if paramiko connection is active."""
-    if not conn.get_transport() or not conn.get_transport().is_active():
+    if not conn or not conn.get_transport() or not conn.get_transport().is_active():
         return False
     else:
         return True
@@ -315,34 +350,45 @@ def run_run(run_name, run_local_dir):
         save_app_state()
         return
     job_file = job_files[0].name
+
+    # append to app state
+    state["runs"].append(
+        {
+            "job_id": "",
+            "run_local_dir": run_local_dir,
+            "run_name": run_name,
+            "run_uuid": run_uuid,
+            "job_file": job_file,
+            "added": int(time.time()),
+            "status": "U",
+        }
+    )
+    save_app_state()
+
     # create remote run directory
-    remote_run_dir = f"runs/{run_uuid}"
-    maybe_reconnect()
-    conn.exec_command(f"mkdir -p {remote_run_dir}")
-    time.sleep(1)
-    # copy input files to remote run dir
-    files = pathlib.Path(run_local_dir).glob("*")
-    scpconn = scp.SCPClient(conn.get_transport())
-    scpconn.put(files, remote_path=remote_run_dir)
+    try:
+        remote_run_dir = f"runs/{run_uuid}"
+        maybe_reconnect()
+        conn_run(f"mkdir -p {remote_run_dir}")
+        time.sleep(1)
+        # copy input files to remote run dir
+        files = pathlib.Path(run_local_dir).glob("*")
+        scpconn = scp.SCPClient(conn.get_transport())
+        scpconn.put(files, remote_path=remote_run_dir)
+    except Exception:
+        logging.exception("upload error:")
+        update_run_by_uuid(run_uuid, {"status": "E-uploadfailed"})
+        save_app_state()
+        return
     # run sbatch
     # TODO check return code
     cmd = f"cd {remote_run_dir} ; sbatch {job_file}"
-    stdin, stdout, stderr = conn.exec_command(cmd)
+    stdin, stdout, stderr = conn_run(cmd)
     job_id = stdout.read()
     retcode = stdout.channel.recv_exit_status()
     status = "S"
     if retcode != 0:
-        state["runs"].append(
-            {
-                "job_id": "",
-                "run_local_dir": run_local_dir,
-                "run_name": run_name,
-                "run_uuid": run_uuid,
-                "job_file": job_file,
-                "added": int(time.time()),
-                "status": "E-sbatcherror",
-            }
-        )
+        update_run_by_uuid(run_uuid, {"status": "E-sbatcherror"})
         save_app_state()
         return
 
@@ -352,31 +398,84 @@ def run_run(run_name, run_local_dir):
     stdout.close()
     stderr.close()
     # append to app state
-    state["runs"].append(
+    update_run_by_uuid(
+        run_uuid,
         {
             "job_id": job_id,
-            "run_local_dir": run_local_dir,
-            "run_name": run_name,
-            "run_uuid": run_uuid,
-            "job_file": job_file,
-            "added": int(time.time()),
-            "status": status,
-        }
+            "status": "S",
+        },
     )
     save_app_state()
 
 
-@app.route("/stop/<run_uuid>")
-def stop(run_uuid):
-    """Stop a run that is in progress by running scancel on slurm host."""
-    # TODO
+def get_run_by_uuid(run_uuid):
+    """Get run dict by run uuid.
+
+    Should there be an index?
+    """
+    for run in state["runs"]:
+        if run["run_uuid"] == run_uuid:
+            return run
+
+
+def update_run_by_uuid(run_uuid, dic):
+    """Get run dict by run uuid.
+
+    Should there be an index?
+    """
+    for run in state["runs"]:
+        if run["run_uuid"] == run_uuid:
+            run.update(dic)
+
+
+@app.route("/cancel/<run_uuid>")
+def cancel(run_uuid):
+    """Cancel a run that is in progress by running scancel on slurm host."""
+    maybe_reconnect()
+    run = get_run_by_uuid(run_uuid)
+    if not run:
+        return flask.redirect(flask.url_for("runs"))
+
+    run_job_id = run.get("job_id")
+    if not run_job_id:
+        return flask.redirect(flask.url_for("runs"))
+
+    conn_run(f"scancel {run_job_id}")
+
+    run["status"] = "C"
+    save_app_state()
+
     return flask.redirect(flask.url_for("runs"))
+
+
+def download_thread(run_uuid):
+    """Download run from remote."""
+    run_name = get_run_by_uuid(run_uuid).get("run_name")
+    remote_run_dir = f"runs/{run_uuid}"
+    try:
+        maybe_reconnect()
+        scpconn = scp.SCPClient(conn.get_transport())
+        local_path = pathlib.Path.home() / "shawl_runs" / run_name
+        local_path.mkdir(exist_ok=True, parents=True)
+        scpconn.get(
+            remote_path=remote_run_dir, recursive=True, local_path=str(local_path)
+        )
+    except Exception:
+        logging.exception("error occured in download:")
+        update_run_by_uuid(run_uuid, {"status": "E-downloadfailed"})
+        save_app_state()
+        return
+    update_run_by_uuid(run_uuid, {"status": "F"})
+    save_app_state()
 
 
 @app.route("/download/<run_uuid>")
 def download(run_uuid):
     """Download finished run directory by copying the remote run directory."""
     # TODO
+    update_run_by_uuid(run_uuid, {"status": "D"})
+    threading.Thread(target=download_thread, args=(run_uuid,)).start()
+    save_app_state()
     return flask.redirect(flask.url_for("runs"))
 
 
@@ -387,13 +486,16 @@ def documentation():
     return flask.redirect(flask.url_for("runs"))
 
 
+def remove_run(run_uuid):
+    """Remove a run by uuid."""
+    state["runs"] = [run for run in state["runs"] if run.get("run_uuid") != run_uuid]
+    save_app_state()
+
+
 @app.route("/remove/<run_uuid>")
 def remove(run_uuid):
-    """Remove jobs that are in error state.
-
-    TODO offer remove functionality for finished runs?
-    """
-    # TODO
+    """Remove job endpoint."""
+    remove_run(run_uuid)
     return flask.redirect(flask.url_for("runs"))
 
 
@@ -401,13 +503,13 @@ def remove(run_uuid):
 def new_run():
     """Display new run page and start new run."""
     if not conn:
-        return flask.redirect(flask.get_url("login"))
+        return flask.redirect(flask.url_for("login"))
     if flask.request.method == "GET":
         return flask.render_template("new_run.jinja2", title="Rew run")
     elif flask.request.method == "POST":
         run_name = flask.request.form.get("run_name")
         run_local_dir = flask.request.form.get("run_local_dir")
-        run_run(run_name, run_local_dir)
+        threading.Thread(target=run_run, args=(run_name, run_local_dir)).start()
         return flask.redirect(flask.url_for("runs"))
 
 
