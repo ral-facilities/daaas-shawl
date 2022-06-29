@@ -51,25 +51,25 @@ def nice_time(time_now, t2):
 def slurm_state_pretty(slurm_state):
     """Pretty print the slurm state."""
     if slurm_state == "R":
-        return f"{ icon_spin('cog') } Running"
+        return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Running"
     elif slurm_state == "PD":
-        return f"{ icon_spin('cog') } Pending"
+        return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Pending"
     elif slurm_state == "U":
-        return f"{ icon_spin('cog') } Uploading"
+        return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Uploading"
     elif slurm_state == "D":
-        return f"{ icon_spin('cog') } Downloading"
+        return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Downloading"
     elif slurm_state == "F":
-        return f"{ icon('check-circle') } Finished"
+        return f"<span class='w3-green'>{ icon('check-circle') }</span> Finished"
     elif slurm_state == "C":
-        return f"{ icon('exclamation-circle') } Cancelled"
+        return f"<span class='w3-red'>{ icon('exclamation-circle') }</span> Cancelled"
     elif slurm_state == "E-jobfilemissing":
-        return f"{ icon('exclamation-circle') } Error: no job file found"
+        return f"<span class='w3-red'>{ icon('exclamation-circle') }</span> Error: no job file found"
     elif slurm_state == "E-sbatcherror":
-        return f"{ icon('exclamation-circle') } Error: sbatch error"
+        return f"<span class='w3-red'>{ icon('exclamation-circle') }</span> Error: sbatch error"
     elif slurm_state == "E-uploadfailed":
-        return f"{ icon('exclamation-circle') } Error: upload failed"
+        return f"<span class='w3-red'>{ icon('exclamation-circle') }</span> Error: upload failed"
     elif slurm_state == "E-downloadfailed":
-        return f"{ icon('exclamation-circle') } Error: download failed"
+        return f"<span class='w3-red'>{ icon('exclamation-circle') }</span> Error: download failed"
     else:
         return slurm_state
 
