@@ -20,6 +20,18 @@ app = flask.Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
+@app.errorhandler(500)
+def page500(error):
+    """Error page for code 500."""
+    return flask.render_template("500.jinja2")
+
+
+@app.route("/errortest")
+def errortest():
+    """Endpoint to view the error page."""
+    return flask.render_template("500.jinja2")
+
+
 def icon(name):
     """Return string for template fontawesome icons.
 
@@ -207,8 +219,12 @@ def login():
     if flask.request.method == "GET":
         error = flask.request.args.get("error")
         error_msg = None
-        if error:
+        if error == "badlogin":
             error_msg = "Authentication failed."
+        if error == "badssh":
+            error_msg = "Unknown SSH error."
+        if error == "badsomething":
+            error_msg = "Unknown error."
         return flask.render_template(
             "login.jinja2", state=state, title="Shawl login", error_msg=error_msg
         )
@@ -227,7 +243,13 @@ def login():
             connect2()
         except paramiko.ssh_exception.AuthenticationException:
             logging.exception("authentication error:")
-            return flask.redirect(flask.url_for("login", error=True))
+            return flask.redirect(flask.url_for("login", error="badlogin"))
+        except paramiko.ssh_exception.SSHException:
+            logging.exception("authentication error:")
+            return flask.redirect(flask.url_for("login", error="badssh"))
+        except Exception:
+            logging.exception("authentication error:")
+            return flask.redirect(flask.url_for("login", error="badsomething"))
 
         return flask.redirect(flask.url_for("runs"))
 
@@ -244,7 +266,7 @@ def get_remote_username():
 
 
 def get_my_remote_runs():
-    """Get my remote runs."""
+    """Get user's remote runs by running squeue."""
     my_username = get_remote_username()
     stdin, stdout, stderr = conn_run(f"squeue -u {my_username}")
     runs = [line.split() for line in stdout.read().decode().split("\n")]
@@ -263,20 +285,31 @@ def get_my_remote_runs():
 
 def update_runs():
     """Synchronize local information with remote runs."""
+
+    def skip_remote_update_status(status):
+        """Return whether to update the local status with the remote status.
+
+        We don't want to do it if the local status is Error,
+        Cancelled, Uploading or Downloading.
+        """
+        if status[0:2] == "E-" or status in ["C", "U", "D"]:
+            return True
+        else:
+            return False
+
     local_runs = state["runs"]  # runs we know about
     remote_runs = get_my_remote_runs()  # remote runs, pending and running
     logging.debug(remote_runs)
 
-    for li in local_runs:
-        # update local status
-        ri = remote_runs.get(li["job_id"])
-        if ri:
-            li["status"] = ri["status"]
+    for local_run in local_runs:
+        remote_run = remote_runs.get(local_run["job_id"])
+        if remote_run:
+            local_run["status"] = remote_run["status"]
         else:
             # couldn't find it remotely, assume it's finished, unless the status
             # is E-* or C in which case keep the local state
-            if li["status"][0:2] != "E-" and li["status"] not in ["C", "U", "D"]:
-                li["status"] = "F"
+            if not skip_remote_update_status(local_run["status"]):
+                local_run["status"] = "F"
 
     state["runs"] = local_runs
 
@@ -291,7 +324,8 @@ def is_connection_active():
 
 def maybe_reconnect():
     """Check if we need to reconnect to the slurm host."""
-    if is_connection_active():
+    if not is_connection_active():
+        conn.close()
         logging.info("maybe_reconnect(): reconnecting")
         connect2()
 
