@@ -539,8 +539,12 @@ def new_run():
     """Display new run page and start new run."""
     if not conn:
         return flask.redirect(flask.url_for("login"))
+    path_placeholder = pathlib.Path.home() / "my_run_files"
+
     if flask.request.method == "GET":
-        return flask.render_template("new_run.jinja2", title="Rew run")
+        return flask.render_template(
+            "new_run.jinja2", title="New run", path_placeholder=path_placeholder
+        )
     elif flask.request.method == "POST":
         run_name = flask.request.form.get("run_name")
         run_local_dir = flask.request.form.get("run_local_dir")

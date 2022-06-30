@@ -8,27 +8,37 @@
     </div>
   {% endif %}
 
-  <div class="w3-container w3-panel w3-white">
-    <h2>New run submission</h2>
+  <header class="w3-container w3-green">
+    <h2><a href="{{ url_for('index') }}">{{ icon('plus-circle') }} New run</a></h2>
+  </header>
+
+  <div class="w3-container w3-panel w3-white w3-padding">
+
     <p>To start a new run please fill in the submission form:</p>
+
     <form method="POST">
 
-      <div class="w3-container w3-pale-green" style="padding-bottom: 10px;">
-      <label><h3>Run name</h3></label>
-      <label>Enter a short name for you run</label>
-      <input class="w3-input" type="text" name="run_name"></input>
+      <p>
+        <label><h4>{{ icon('hand-o-down') }} Run name</h4></label>
+        <label>Enter a short name for you run.</label>
+        <input class="w3-input" type="text" name="run_name" placeholder="my run"></input>
+      </p>
 
-      <label><h3>Input file path</h3></label>
-      <label>Enter the absolute path to the input files directory (e.g. /home/username/myfastqfiles/).This should also contain a SLURM job file.</label>
-      <input class="w3-input" type="text" name="run_local_dir"></input>
-      </div>
       <p>
-        <button class="w3-input w3-btn w3-blue">Submit</button>
+        <label><h4>{{ icon('hand-o-down') }} Input file path</h4></label>
+        <label>Enter the absolute path to the input files directory (e.g. /home/username/myfastqfiles/).</label></br>
+        <label>This should also contain a SLURM job file.</label>
+        <input class="w3-input" type="text" name="run_local_dir" placeholder="{{ path_placeholder }}"></input>
       </p>
-  </form>
+
       <p>
-        <button class="w3-input w3-btn w3-red"><a href="{{ url_for('runs') }}">Cancel</a></button>
+        <button class="w3-input w3-btn w3-blue">{{ icon('arrow-right') }} Submit</button>
       </p>
+    </form>
+
+    <p>
+      <button class="w3-input w3-btn w3-red"><a href="{{ url_for('runs') }}">{{ icon('stop') }} Cancel</a></button>
+    </p>
 
   </div>
 
