@@ -51,9 +51,9 @@ def nice_time(time_now, t2):
 def slurm_state_pretty(slurm_state):
     """Pretty print the slurm state."""
     if slurm_state == "R":
-        return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Running"
+        return f"<span class='w3-yellow'>{ icon_spin('spinner') }</span> Running"
     elif slurm_state == "PD":
-        return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Pending"
+        return f"<span class='w3-yellow'>{ icon_spin('spinner') }</span> Pending"
     elif slurm_state == "U":
         return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Uploading"
     elif slurm_state == "D":
