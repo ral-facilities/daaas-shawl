@@ -530,11 +530,11 @@ def update_stale_runs():
             run["status"] = "E-uploadfailed"
 
 
-def main(port=7321, debug=True):
+def main(port=7321):
     """Run flask server."""
     update_stale_runs()
 
-    app.run(port=port, debug=debug)
+    app.run(port=port)
 
 
 if __name__ == "__main__":
