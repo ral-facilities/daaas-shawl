@@ -15,4 +15,10 @@ Shawl is an interface to SLURM systems that runs as a local web application.
 
 ## Running
 
-    python3
+    python3 main.py
+
+This will open a web browser window to http://127.0.0.1:7321
+
+## Manual
+
+see [MANUAL.md] for more information on shawl.
