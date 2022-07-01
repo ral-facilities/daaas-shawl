@@ -77,6 +77,12 @@ This means that shawl could not upload the input directory to the SLURM login no
 
 This means that shawl could not download the results directory from the SLURM login node to your home directory. This may be because of a transient problem with your internet connect or you may have run out of disk space locally.
 
+## Moving runs to a different machine
+
+Shawl keeps the information on runs on your local machine, and thus if you run it on a different machine you won't have the runs available.
+
+If you want to move it, you can copy the file ~/shawl.json.
+
 ## Support and feedback
 
 Please email support-email-here if you encounter any problems, or if you have any questions or suggestions.
