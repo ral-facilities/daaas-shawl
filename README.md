@@ -21,4 +21,4 @@ This will open a web browser window to http://127.0.0.1:7321
 
 ## Manual
 
-see [MANUAL.md] for more information on shawl.
+see [MANUAL.md](MANUAL.md) for more information on shawl.
