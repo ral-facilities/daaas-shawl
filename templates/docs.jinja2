@@ -1,0 +1,17 @@
+{% extends 'base.jinja2' %}
+
+{% block content %}
+  <header class="w3-container w3-green">
+    <h2><a href="{{ url_for('documentation') }}">{{ icon('bank') }} Documentation</a></h2>
+  </header>
+
+  <div class="w3-container w3-panel w3-white" style="padding-bottom: 33px; margin-bottom: 200px;">
+
+    <h2>Table of Contents</h2>
+    {{ manual_md.toc_html }}
+
+    {{ manual_md }}
+
+  </div>
+
+{% endblock %}

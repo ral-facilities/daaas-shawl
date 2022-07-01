@@ -8,12 +8,14 @@ import sys
 import threading
 import time
 import uuid
+import webbrowser
 
 import argh
 import flask
 import humanize
 import paramiko
 import scp
+import markdown2
 
 app = flask.Flask(__name__)
 
@@ -408,9 +410,9 @@ def run_run(run_name, run_local_dir):
         conn_run(f"mkdir -p {remote_run_dir}")
         time.sleep(1)
         # copy input files to remote run dir
-        files = pathlib.Path(run_local_dir).glob("*")
+        files = pathlib.Path(run_local_dir).glob("**/*")
         scpconn = scp.SCPClient(conn.get_transport())
-        scpconn.put(files, remote_path=remote_run_dir)
+        scpconn.put(files, recursive=True, remote_path=remote_run_dir)
     except Exception:
         logging.exception("upload error:")
         update_run_by_uuid(run_uuid, {"status": "E-uploadfailed"})
@@ -517,8 +519,10 @@ def download(run_uuid):
 @app.route("/documentation")
 def documentation():
     """Show documentation."""
-    # TODO
-    return flask.redirect(flask.url_for("runs"))
+    manual_md = markdown2.markdown(
+        open("MANUAL.md").read(), extras=["header-ids", "toc"]
+    )
+    return flask.render_template("docs.jinja2", manual_md=manual_md)
 
 
 def remove_run(run_uuid):
@@ -571,6 +575,15 @@ def update_stale_runs():
 def main(port=7321):
     """Run flask server."""
     update_stale_runs()
+
+    web_url = f"http://127.0.0.1:{port}"
+
+    def open_scarf():
+        """Open the web browser to the scarf url after 5 seconds."""
+        time.sleep(5)
+        webbrowser.open_new(web_url)
+
+    threading.Thread(target=open_scarf).start()
 
     app.run(port=port)
 
