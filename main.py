@@ -102,12 +102,12 @@ def slurm_state_to_default_action(slurm_state):
         return ["download"]
     elif slurm_state == "DLOK":
         return ["browse"]
-    if slurm_state == "E-downloadfailed":
+    elif slurm_state == "E-downloadfailed":
         return ["download"]
     elif slurm_state[0:2] == "E-":
         # some error, allow deletion
         return ["remove"]
-    if slurm_state == "C":
+    elif slurm_state == "C":
         return ["remove"]
     else:
         return []
@@ -124,15 +124,15 @@ def slurm_state_to_all_actions(slurm_state):
         return ["download", "remove"]
     elif slurm_state == "DLOK":
         return ["browse", "download", "remove"]
-    if slurm_state == "E-downloadfailed":
+    elif slurm_state == "E-downloadfailed":
         return ["download", "remove"]
-    elif slurm_state[0:2] == "E-sbatcherror":
+    elif slurm_state == "E-sbatcherror":
         # sbatch failed, allow downloading for error logs
         return ["remove", "download"]
     elif slurm_state[0:2] == "E-":
         # some error, allow deletion
         return ["remove"]
-    if slurm_state == "C":
+    elif slurm_state == "C":
         return ["remove"]
     else:
         return []
