@@ -49,7 +49,8 @@
         <tbody>
           {% for run in state["runs"]|reverse %}
             <tr>
-              <td style="overflow: hidden; text-overflow: ellipsis">{{ run.get("run_name") }}</td>
+              <td style="overflow: hidden; text-overflow: ellipsis">
+                <a href={{ url_for('run_info', run_uuid=run.get('run_uuid')) }}>{{ run.get("run_name") }}</a></td>
               <td style="overflow: hidden; text-overflow: ellipsis">{{ slurm_state_pretty(run.get("status")) }}</td>
               <td style="overflow: hidden; text-overflow: ellipsis">{{ run.get("job_file") }}</td>
               <td style="overflow: hidden; text-overflow: ellipsis">{{ nice_time(time_now, run.get("added")) }}</td>

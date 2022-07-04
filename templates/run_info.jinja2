@@ -1,0 +1,69 @@
+{% extends "base.jinja2" %}
+{% block content %}
+
+  {% if error_msg %}
+    <div class="w3-panel w3-red">
+      <h3>Error:</h3>
+      <p>{{ error_msg }}</p>
+    </div>
+  {% endif %}
+
+  <header class="w3-container w3-green">
+    <h2><a href="{{ url_for('index') }}">{{ icon('question-circle') }} Run information</a></h2>
+  </header>
+
+  <div class="w3-container w3-panel w3-white w3-padding">
+
+    <h3>Run information</h3>
+
+    <table class="w3-table w3-bordered w3-hoverable" style="width: 100%; white-space: nowrap; table-layout: fixed;">
+      <tbody>
+        <tr>
+          <th>Run name</th>
+          <td>{{ run.get("run_name") }}</td>
+        </tr>
+        <tr>
+        <th>Local input directory</th>
+          <td>{{ run.get("run_local_dir") }}</td>
+        </tr>
+        <tr>
+        <th>SLURM Job File</th>
+          <td>{{ run.get("job_file") }}</td>
+        </tr>
+        <tr>
+        <th>Added on</th>
+          <td>{{ nice_time(time_now, run.get("added")) }}</td>
+        </tr>
+        <tr>
+        <th>Status</th>
+          <td>{{ slurm_state_pretty(run.get("status")) }}</td>
+        </tr>
+        <tr>
+        <th>Actions</th>
+          <Td>{{ run.get("run_uuid") }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <h3>Run actions</h3>
+
+    {% set actions = slurm_state_to_all_actions(run.get("status")) %}
+
+    {% if "cancel" in actions %}
+      <a class="w3-btn w3-red" href="{{ url_for('cancel', run_uuid=run.get('run_uuid')) }}">{{ icon('stop-circle') }} Cancel</a>
+    {% endif %}
+    {% if "download" in actions %}
+      <a class="w3-btn w3-blue" href="{{ url_for('download', run_uuid=run.get('run_uuid')) }}">{{ icon('download') }} Download</a>
+    {% endif %}
+    {% if "remove" in actions %}
+      <a class="w3-btn w3-red" href="{{ url_for('remove', run_uuid=run.get('run_uuid')) }}">{{ icon('trash') }} Remove</a>
+    {% endif %}
+    {% if "browse" in actions %}
+      <a class="w3-btn w3-blue" href="{{ url_for('browse', run_uuid=run.get('run_uuid')) }}">{{ icon('folder-open') }} Browse</a>
+    {% endif %}
+
+  </div>
+
+
+{% endblock content %}

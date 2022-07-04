@@ -123,7 +123,12 @@ def slurm_state_to_all_actions(slurm_state):
         # this is a state added by update_runs()
         return ["download", "remove"]
     elif slurm_state == "DLOK":
-        return ["remove", "download", "browse"]
+        return ["browse", "download", "remove"]
+    if slurm_state == "E-downloadfailed":
+        return ["download", "remove"]
+    elif slurm_state[0:2] == "E-sbatcherror":
+        # sbatch failed, allow downloading for error logs
+        return ["remove", "download"]
     elif slurm_state[0:2] == "E-":
         # some error, allow deletion
         return ["remove"]
@@ -142,6 +147,7 @@ def inject_globals():
         "icon": icon,
         "slurm_state_pretty": slurm_state_pretty,
         "slurm_state_to_default_action": slurm_state_to_default_action,
+        "slurm_state_to_all_actions": slurm_state_to_all_actions,
     }
 
 
@@ -349,6 +355,12 @@ def runs():
     maybe_reconnect()
     update_runs()
     return flask.render_template("runs.jinja2", state=state, title="Runs")
+
+
+@app.route("/run_info/<run_uuid>")
+def run_info(run_uuid):
+    run = get_run_by_uuid(run_uuid)
+    return flask.render_template("run_info.jinja2", run=run)
 
 
 def run_run(run_name, run_local_dir):
