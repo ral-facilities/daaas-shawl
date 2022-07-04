@@ -9,6 +9,7 @@ import threading
 import time
 import uuid
 import webbrowser
+import subprocess
 
 import argh
 import flask
@@ -74,6 +75,8 @@ def slurm_state_pretty(slurm_state):
         return f"<span class='w3-yellow'>{ icon_spin('cog') }</span> Downloading"
     elif slurm_state == "F":
         return f"<span class='w3-green'>{ icon('check-circle') }</span> Finished"
+    elif slurm_state == "DLOK":
+        return f"<span class='w3-green'>{ icon('check-circle') }</span> Downloaded"
     elif slurm_state == "C":
         return f"<span class='w3-red'>{ icon('exclamation-circle') }</span> Cancelled"
     elif slurm_state == "E-jobfilemissing":
@@ -97,6 +100,8 @@ def slurm_state_to_default_action(slurm_state):
     elif slurm_state == "F":
         # this is a state added by update_runs()
         return ["download"]
+    elif slurm_state == "DLOK":
+        return ["browse"]
     if slurm_state == "E-downloadfailed":
         return ["download"]
     elif slurm_state[0:2] == "E-":
@@ -117,6 +122,8 @@ def slurm_state_to_all_actions(slurm_state):
     elif slurm_state == "F":
         # this is a state added by update_runs()
         return ["download", "remove"]
+    elif slurm_state == "DLOK":
+        return ["remove", "download", "browse"]
     elif slurm_state[0:2] == "E-":
         # some error, allow deletion
         return ["remove"]
@@ -294,7 +301,7 @@ def update_runs():
         We don't want to do it if the local status is Error,
         Cancelled, Uploading or Downloading.
         """
-        if status[0:2] == "E-" or status in ["C", "U", "D"]:
+        if status[0:2] == "E-" or status in ["C", "U", "D", "DLOK"]:
             return True
         else:
             return False
@@ -502,7 +509,7 @@ def download_thread(run_uuid):
         update_run_by_uuid(run_uuid, {"status": "E-downloadfailed"})
         save_app_state()
         return
-    update_run_by_uuid(run_uuid, {"status": "F"})
+    update_run_by_uuid(run_uuid, {"status": "DLOK"})
     save_app_state()
 
 
@@ -554,6 +561,18 @@ def new_run():
         run_local_dir = flask.request.form.get("run_local_dir")
         threading.Thread(target=run_run, args=(run_name, run_local_dir)).start()
         return flask.redirect(flask.url_for("runs"))
+
+
+@app.route("/browse/<run_uuid>")
+def browse(run_uuid):
+    """Open file browser at downloaded files location."""
+    run = get_run_by_uuid(run_uuid)
+
+    run_dir = (
+        pathlib.Path.home() / "shawl_runs" / run.get("run_name") / run.get("run_uuid")
+    )
+    subprocess.Popen(["thunar", run_dir])
+    return flask.redirect(flask.url_for("runs"))
 
 
 @app.route("/signout")
