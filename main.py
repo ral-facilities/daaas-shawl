@@ -541,7 +541,9 @@ def documentation():
     manual_md = markdown2.markdown(
         open("MANUAL.md").read(), extras=["header-ids", "toc"]
     )
-    return flask.render_template("docs.jinja2", manual_md=manual_md)
+    return flask.render_template(
+        "docs.jinja2", title="Documentation", manual_md=manual_md
+    )
 
 
 def remove_run(run_uuid):

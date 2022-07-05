@@ -43,9 +43,9 @@ Click Submit to start the run.
 
 You will be redirected back to the dashboard, where you can view the status of the run.
 
-Once the run reached the finished state, you can click the download button on the right side of the list. Your files will be downloaded to:
+Once the run reached the finished state, you can click the download button on the right side of the list.
 
-    ~/shawl_runs/<your run name>/<run uuid>
+When the files have finished downloading, the action will change to browse, and if you click this, it will open the file browser in the downloaded directory.
 
 ## Run states
 
@@ -82,6 +82,12 @@ This means that shawl could not download the results directory from the SLURM lo
 Shawl keeps the information on runs on your local machine, and thus if you run it on a different machine you won't have the runs available.
 
 If you want to move it, you can copy the file ~/shawl.json.
+
+## Viewing SLURM logs and diagnosing sbatch errors
+
+If you have set up logging to a file in the SLURM job file, you can, in the case of successfully submitted and finished runs, or runs with sbatch errors, view the logs by downloading the run files and viewing the log files locally.
+
+In the case in the run is in an error state due to an sbatch error, the browse action is available on the run info page, which can be accessed by clicking on the run name on the runs page.
 
 ## Support and feedback
 
