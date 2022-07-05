@@ -60,14 +60,14 @@
     {% if "download" in actions %}
       <a class="w3-btn w3-blue" href="{{ url_for('download', run_uuid=run.get('run_uuid')) }}">{{ icon('download') }} Download</a>
     {% endif %}
-    {% if "remove" in actions %}
-      <a class="w3-btn w3-red" href="{{ url_for('remove', run_uuid=run.get('run_uuid')) }}">{{ icon('trash') }} Remove</a>
-    {% endif %}
     {% if "browse" in actions %}
       <a class="w3-btn w3-blue" href="{{ url_for('browse', run_uuid=run.get('run_uuid')) }}">{{ icon('folder-open') }} Browse</a>
     {% endif %}
     {% if "repeat" in actions %}
       <a class="w3-btn w3-blue" href="{{ url_for('new_run', run_name=run.get('run_name'), run_local_dir=run.get('run_local_dir')) }}">{{ icon('repeat') }} Repeat</a>
+    {% endif %}
+    {% if "remove" in actions %}
+      <a class="w3-btn w3-red" href="{{ url_for('remove', run_uuid=run.get('run_uuid')) }}">{{ icon('trash') }} Remove</a>
     {% endif %}
 
   </div>
