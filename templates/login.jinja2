@@ -27,16 +27,16 @@
 
       <p>
         <label><b>{{ icon('server') }} SLURM server:</b></label>
-        <input class="w3-input" type="text" name="slurm_hostname" value="ui1.scarf.rl.ac.uk"></input>
+        <input class="w3-input" type="text" minlength=1 maxlength=2048 name="slurm_hostname" value="ui1.scarf.rl.ac.uk" required></input>
       </p>
       <p>
         <label><b>{{ icon('user') }} Username:</b></label>
-        <input class="w3-input" type="text" name="slurm_username"></input>
+        <input class="w3-input" type="text" minlength=1 maxlength=2048 name="slurm_username" required></input>
       </p>
 
       <p>
         <label><b>{{ icon('key') }} Password:</b></label>
-        <input class="w3-input" type="password" name="slurm_password"></input>
+        <input class="w3-input" type="password" minlength=1 maxlength=2048 name="slurm_password" required></input>
       </p>
 
       <p>
