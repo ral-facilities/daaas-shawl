@@ -23,14 +23,14 @@
     <form method="POST">
 
       <p>
-        <label><h4>{{ icon('hand-o-down') }} Run name</h4></label>
-        <label>Enter a short name for you run.</label>
-        <input class="w3-input" type="text" name="run_name" pattern="[a-zA-Z0-9-\s]+" minlength=1 maxlength=2048 placeholder="my run" {% if run_name %}value="{{ run_name }}"{% endif %} required></input>
+        <label><h4>{{ icon('hand-o-down') }}</h4></label>
+        <label>Enter a short name for you run. (letters, numbers and space only.)</label>
+        <input class="w3-input" type="text" name="run_name" pattern="[a-zA-Z0-9\s]+" minlength=1 maxlength=2048 placeholder="my run" {% if run_name %}value="{{ run_name }}"{% endif %} required></input>
       </p>
 
       <p>
         <label><h4>{{ icon('hand-o-down') }} Input file path</h4></label>
-        <label>Enter the absolute path to the input files directory (e.g. /home/username/myfastqfiles/).</label></br>
+        <label>Enter the absolute path to the input files directory (e.g. {{ path_placeholder }}).</label></br>
         <label>This should also contain a SLURM job file.</label>
         <input class="w3-input" type="text" name="run_local_dir" minlength=1 maxlength=2048 placeholder="{{ path_placeholder }}" {% if run_local_dir %}value="{{ run_local_dir }}"{% endif %} required></input>
       </p>
