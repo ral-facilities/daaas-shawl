@@ -110,32 +110,32 @@ def slurm_state_to_default_action(slurm_state):
     elif slurm_state == "C":
         return ["remove"]
     else:
-        return []
+        return ["repeat"]
 
 
 def slurm_state_to_all_actions(slurm_state):
     """Return array denoting what operations can be done in the given slurm state."""
     if slurm_state == "R":
-        return ["cancel"]
+        return ["cancel", "repeat"]
     elif slurm_state == "PD":
-        return ["cancel"]
+        return ["cancel", "repeat"]
     elif slurm_state == "F":
         # this is a state added by update_runs()
-        return ["download", "remove"]
+        return ["download", "remove", "repeat"]
     elif slurm_state == "DLOK":
-        return ["browse", "download", "remove"]
+        return ["browse", "download", "remove", "repeat"]
     elif slurm_state == "E-downloadfailed":
-        return ["download", "remove"]
+        return ["download", "remove", "repeat"]
     elif slurm_state == "E-sbatcherror":
         # sbatch failed, allow downloading for error logs
-        return ["remove", "download"]
+        return ["remove", "download", "repeat"]
     elif slurm_state[0:2] == "E-":
         # some error, allow deletion
-        return ["remove"]
+        return ["remove", "repeat"]
     elif slurm_state == "C":
-        return ["remove"]
+        return ["remove", "repeat"]
     else:
-        return []
+        return ["repeat"]
 
 
 @app.context_processor
@@ -564,11 +564,18 @@ def new_run():
     """Display new run page and start new run."""
     if not conn:
         return flask.redirect(flask.url_for("login"))
+
     path_placeholder = pathlib.Path.home() / "my_run_files"
+    run_name = flask.request.args.get("run_name")
+    run_local_dir = flask.request.args.get("run_local_dir")
 
     if flask.request.method == "GET":
         return flask.render_template(
-            "new_run.jinja2", title="New run", path_placeholder=path_placeholder
+            "new_run.jinja2",
+            title="New run",
+            path_placeholder=path_placeholder,
+            run_name=run_name,
+            run_local_dir=run_local_dir,
         )
     elif flask.request.method == "POST":
         run_name = flask.request.form.get("run_name")
@@ -624,7 +631,7 @@ def update_stale_runs():
             run["status"] = "E-uploadfailed"
 
 
-def main(port=7321):
+def main(port=7321, open_browser=True):
     """Run flask server."""
     update_stale_runs()
 
@@ -635,7 +642,8 @@ def main(port=7321):
         time.sleep(5)
         webbrowser.open_new(web_url)
 
-    threading.Thread(target=open_scarf).start()
+    if open_browser:
+        threading.Thread(target=open_scarf).start()
 
     app.run(port=port)
 

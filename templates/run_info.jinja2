@@ -14,7 +14,9 @@
 
   <div class="w3-container w3-panel w3-white w3-padding">
 
-    <a class="w3-btn w3-blue" href="{{ url_for('runs') }}">{{ icon('arrow-left') }} Back</a>
+    <p>
+      <a class="w3-btn w3-blue" href="{{ url_for('runs') }}">{{ icon('arrow-circle-left') }} Back</a>
+    </p>
 
     <h3>Run information</h3>
 
@@ -63,6 +65,9 @@
     {% endif %}
     {% if "browse" in actions %}
       <a class="w3-btn w3-blue" href="{{ url_for('browse', run_uuid=run.get('run_uuid')) }}">{{ icon('folder-open') }} Browse</a>
+    {% endif %}
+    {% if "repeat" in actions %}
+      <a class="w3-btn w3-blue" href="{{ url_for('new_run', run_name=run.get('run_name'), run_local_dir=run.get('run_local_dir')) }}">{{ icon('repeat') }} Repeat</a>
     {% endif %}
 
   </div>

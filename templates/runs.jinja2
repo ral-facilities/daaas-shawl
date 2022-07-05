@@ -1,11 +1,9 @@
 {% extends 'base.jinja2' %}
 
 {% block style %}
-  .truncate {
-  width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  td a {
+  width: 100%;
+  display: block;
   }
 {% endblock %}
 
@@ -44,6 +42,8 @@
 
     <h3>List of runs</h3>
     <p>
+      {{ icon('info-circle') }} Click on the run name to view more information and actions.
+    <p>
       <table class="w3-table w3-bordered w3-card-4 w3-hoverable" style="width: 100%; white-space: nowrap; table-layout: fixed;">
         <thead class="w3-pale-blue">
           <th>Name</th>
@@ -56,10 +56,25 @@
           {% for run in state["runs"]|reverse %}
             <tr>
               <td style="overflow: hidden; text-overflow: ellipsis">
-                <a href={{ url_for('run_info', run_uuid=run.get('run_uuid')) }}>{{ run.get("run_name") }}</a></td>
-              <td style="overflow: hidden; text-overflow: ellipsis">{{ slurm_state_pretty(run.get("status")) }}</td>
-              <td style="overflow: hidden; text-overflow: ellipsis">{{ run.get("job_file") }}</td>
-              <td style="overflow: hidden; text-overflow: ellipsis">{{ nice_time(time_now, run.get("added")) }}</td>
+                <a href={{ url_for('run_info', run_uuid=run.get('run_uuid')) }}>
+                  {{ run.get("run_name") }}
+                </a>
+              </td>
+              <td style="overflow: hidden; text-overflow: ellipsis">
+                <a href={{ url_for('run_info', run_uuid=run.get('run_uuid')) }}>
+                  {{ slurm_state_pretty(run.get("status")) }}
+                </a>
+              </td>
+              <td style="overflow: hidden; text-overflow: ellipsis">
+                <a href={{ url_for('run_info', run_uuid=run.get('run_uuid')) }}>
+                  {{ run.get("job_file") }}
+                </a>
+              </td>
+              <td style="overflow: hidden; text-overflow: ellipsis">
+                <a href={{ url_for('run_info', run_uuid=run.get('run_uuid')) }}>
+                  {{ nice_time(time_now, run.get("added")) }}
+                </a>
+              </td>
 
               {% set actions = slurm_state_to_default_action(run.get("status")) %}
               <td>
@@ -71,6 +86,8 @@
                   <a href="{{ url_for('remove', run_uuid=run.get('run_uuid')) }}">{{ icon('trash') }} Remove</a>
                 {% elif "browse" in actions %}
                   <a href="{{ url_for('browse', run_uuid=run.get('run_uuid')) }}">{{ icon('folder-open') }} Browse</a>
+                {% elif "repeat" in actions %}
+                  <a href="{{ url_for('new_run', run_name=run.get('run_name'), run_local_dir=run.get('run_local_dir')) }}">{{ icon('repeat') }} Repeat</a>
                 {% endif %}
               </td>
             </tr>
