@@ -230,7 +230,6 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Login page."""
-    global conn
     if flask.request.method == "GET":
         error = flask.request.args.get("error")
         error_msg = None
@@ -349,7 +348,7 @@ def maybe_reconnect():
 def runs():
     """List SLURM runs and some actions."""
     logging.debug(state)
-    if not conn:
+    if not is_connection_active():
         return flask.redirect(flask.url_for("login"))
 
     maybe_reconnect()
@@ -562,7 +561,7 @@ def remove(run_uuid):
 @app.route("/new_run", methods=["GET", "POST"])
 def new_run():
     """Display new run page and start new run."""
-    if not conn:
+    if not is_connection_active():
         return flask.redirect(flask.url_for("login"))
 
     path_placeholder = pathlib.Path.home() / "my_run_files"
