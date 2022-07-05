@@ -596,6 +596,25 @@ def signout():
     return flask.redirect(flask.url_for("login"))
 
 
+@app.route("/backup")
+def backup():
+    """Backup shawl.json file to slurm host."""
+    maybe_reconnect()
+    scpconn = scp.SCPClient(conn.get_transport())
+    local_conf_path = pathlib.Path().home() / "shawl.json"
+    scpconn.put(local_conf_path, remote_path="~/shawl.json")
+    return flask.redirect(flask.url_for("runs"))
+
+
+@app.route("/restore")
+def restore():
+    """Restore shawl.json file from slurm host."""
+    scpconn = scp.SCPClient(conn.get_transport())
+    local_conf_path = pathlib.Path().home() / "shawl.json"
+    scpconn.get(remote_path="shawl.json", local_path=local_conf_path)
+    return flask.redirect(flask.url_for("runs"))
+
+
 def update_stale_runs():
     """Go through stale runs statuses and change them."""
     for run in state["runs"]:

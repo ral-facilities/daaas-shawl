@@ -81,7 +81,7 @@ This means that shawl could not download the results directory from the SLURM lo
 
 Shawl keeps the information on runs on your local machine, and thus if you run it on a different machine you won't have the runs available.
 
-If you want to move it, you can copy the file ~/shawl.json.
+You can back your runs up by clicking the backup button on the dashboard, and then running shawl on a different machine, logging in to the same slurm node and clicking the restore button on the dashboard.
 
 ## Viewing SLURM logs and diagnosing sbatch errors
 
