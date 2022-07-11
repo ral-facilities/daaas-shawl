@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="UTF-8">
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/static/w3.css">
+  <link rel="stylesheet" href="/static/Font-Awesome-4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/static/fonts.googleapis.com.css.family.Raleway.css">
+  <style>
+    a { text-decoration: none }
+    html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+    body{
+background-image: linear-gradient(110deg, #b5d1af 25%, #f5f0d0 25%, #f5f0d0 50%, #b5d1af 50%, #b5d1af 75%, #f5f0d0 75%, #f5f0d0 100%);
+    background-size: 42.57px 116.95px;
+    }
+  </style>
+  <body class="w3-light-gray">
+
+    <header class="w3-container w3-black w3-bar">
+      <span class="w3-bar-item w3-large w3-right">
+        <a href="https://github.com/dvolk/shawl5">Shawl {{ icon('github') }}</a>
+      </span>
+    </header>
+
+    <header class="w3-container w3-green">
+      <h2>{{ icon('home') }} SLURM Dashboard</h2>
+    </header>
+
+    <div class="w3-panel w3-white">
+      <div class="w3-panel w3-half">
+        <h3>Settings</h3>
+
+        <p>
+          <label>{{ icon('server') }} SLURM login node hostname:</label><br/>
+          <input id="hostname"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="ui1.scarf.rl.ac.uk" required></input>
+        </p>
+        <p>
+          <label>{{ icon('user') }} SLURM username:</label>
+          <input id="username"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="username" required></input>
+        </p>
+        <p>
+          <label>{{ icon('key') }} SLURM password:</label>
+          <input id="password"    class="w3-input" type="password"  minlength=1 maxlength=2048 placeholder="password" required></input>
+        </p>
+        <p>
+          <label>{{ icon('desktop') }} local run path:</label>
+          <input id="local_path"  class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="local path" required></input>
+        </p>
+        <p>
+          <label>{{ icon('cloud') }} Remote run path:</label>
+          <input id="remote_path" class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="remote path" required></input>
+        </p>
+
+      </div>
+
+      <div class="w3-panel w3-half">
+        <h3>Actions</h3>
+        <p>{{ icon('info-circle') }} These are in order.<p>
+        <p>
+          <button id="term_rsync_up"    class="w3-btn w3-blue">{{ icon('cloud-upload') }} Sync local to remote</button>
+        </p>
+        <p>
+          <button id="term_run"         class="w3-btn w3-blue">{{ icon('cog') }} Run job</button>
+        </p>
+        <p>
+          <button id="term_watch_queue" class="w3-btn w3-blue">{{ icon('search') }} Watch queue</button>
+        </p>
+        <p>
+          <button id="term_rsync_down"  class="w3-btn w3-blue">{{ icon('cloud-download') }} Sync remote to local</button>
+        </p>
+        <p>
+          <button id="filebrowser"      class="w3-btn w3-blue">{{ icon('folder-open') }} Open file browser</button>
+        </p>
+      </div>
+    </div>
+
+    <div class="w3-panel w3-white">
+      <div class="w3-panel">
+        {{ manual_html }}
+      </div>
+    </div>
+
+    <script type="text/javascript" src="/static/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/static/site.js"></script>
+
+  </body>
+</html>
