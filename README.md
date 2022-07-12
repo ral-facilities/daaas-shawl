@@ -2,7 +2,7 @@
 
 Shawl5 is an interface to SLURM systems that runs as a local web application.
 
-<img src="https://i.imgur.com/WhMfoKs.png"/>
+<img src="https://i.imgur.com/JKnSMoV.png"/>
 
 ## Installation (ubuntu 22.04)
 
