@@ -6,14 +6,15 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-term = "xterm"
+term_ssh = "xfce4-terminal"
+term_rsync = "xterm"
 
 
 def run_term_ssh_cmd(hostname, username, password, ssh_cmd):
     """Run command remotely, opening a local terminal."""
     term_cmd = f"sshpass -p {shlex.quote(password)} ssh -q -t -oUserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {shlex.quote(username)}@{shlex.quote(hostname)} {shlex.quote(ssh_cmd)} ; read -n 1 -p 'Command finished. Press any key to continue.'"
     logging.info(term_cmd)
-    subprocess.Popen([term, "-geometry", "100x32", "-e", term_cmd])
+    subprocess.Popen([term_ssh, "--geometry", "100x32", "-e", term_cmd])
 
 
 def run_term_ssh(hostname, username, password, remote_path):
@@ -21,21 +22,21 @@ def run_term_ssh(hostname, username, password, remote_path):
     cmd = f"cd {shlex.quote(remote_path)}; bash --login"
     term_cmd = f"sshpass -p {shlex.quote(password)} ssh -q -t -oUserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {shlex.quote(username)}@{shlex.quote(hostname)} {shlex.quote(cmd)}"
     logging.info(term_cmd)
-    subprocess.Popen([term, "-geometry", "100x32", "-e", term_cmd])
+    subprocess.Popen([term_ssh, "--geometry", "100x32", "-e", term_cmd])
 
 
 def run_term_rsync_up(hostname, username, password, local_path, remote_path):
     """Run command remotely, opening a local terminal."""
     term_cmd = f"sshpass -p {shlex.quote(password)} rsync -e 'ssh -q -oUserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' --stats --progress {shlex.quote(local_path)}/ -aXxv {shlex.quote(username)}@{shlex.quote(hostname)}:{shlex.quote(remote_path)} ; read -n 1 -p 'Command finished. Press any key to continue.'"
     logging.info(term_cmd)
-    subprocess.Popen([term, "-geometry", "100x32", "-e", term_cmd])
+    subprocess.Popen([term_rsync, "-geometry", "100x32", "-e", term_cmd])
 
 
 def run_term_rsync_down(hostname, username, password, local_path, remote_path):
     """Run command remotely, opening a local terminal."""
     term_cmd = f"sshpass -p {shlex.quote(password)} rsync -e 'ssh -q -oUserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' -aXxv --stats --progress {shlex.quote(username)}@{shlex.quote(hostname)}:{shlex.quote(remote_path)}/ {shlex.quote(local_path)} ; read -n 1 -p 'Command finished. Press any key to continue.'"
     logging.info(term_cmd)
-    subprocess.Popen([term, "-geometry", "100x32", "-e", term_cmd])
+    subprocess.Popen([term_rsync, "-geometry", "100x32", "-e", term_cmd])
 
 
 def run_filebrowser(local_path):
