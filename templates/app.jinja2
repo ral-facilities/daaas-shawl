@@ -5,12 +5,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="/static/w3.css">
   <link rel="stylesheet" href="/static/Font-Awesome-4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/static/fonts.googleapis.com.css.family.Raleway.css">
   <style>
+    /* latin */
+    @font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url(/static/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8-qxTOlOV.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
     a { text-decoration: none }
-    html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+    html,body,h1,h2,h3,h4,h5 {font-family: 'JetBrains Mono', monospace;}
     body{
-background-image: linear-gradient(110deg, #b5d1af 25%, #f5f0d0 25%, #f5f0d0 50%, #b5d1af 50%, #b5d1af 75%, #f5f0d0 75%, #f5f0d0 100%);
+    background-image: linear-gradient(110deg, #b5d1af 25%, #f5f0d0 25%, #f5f0d0 50%, #b5d1af 50%, #b5d1af 75%, #f5f0d0 75%, #f5f0d0 100%);
     background-size: 42.57px 116.95px;
     }
   </style>
@@ -77,14 +86,16 @@ background-image: linear-gradient(110deg, #b5d1af 25%, #f5f0d0 25%, #f5f0d0 50%,
       </div>
     </div>
 
-    <div class="w3-panel w3-white">
+    <div x-data="{ open: true }" @click="open = ! open" x-show="open" class="w3-panel w3-white">
       <div class="w3-panel">
         {{ manual_html }}
       </div>
     </div>
 
     <script type="text/javascript" src="/static/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script type="text/javascript" src="/static/site.js"></script>
+
 
   </body>
 </html>
