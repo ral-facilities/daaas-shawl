@@ -12,11 +12,13 @@ function load_form() {
   $("#password").val(localStorage.password);
   $("#local_path").val(localStorage.local_path);
   $("#remote_path").val(localStorage.remote_path);
+  highlight_button(localStorage.highlighted_button);
 };
 
 function highlight_button(button_id) {
-  $("button").css("border", "");
-  $(button_id).css("border", "3px solid black");
+  $("button").css("border-bottom", "");
+  $(button_id).css("border-bottom", "3px solid black");
+  localStorage.highlighted_button = button_id;
 }
 
 $("#term_watch_queue").click(function() {
