@@ -16,8 +16,12 @@ function load_form() {
 };
 
 function highlight_button(button_id) {
-  $("button").css("border-bottom", "");
-  $(button_id).css("border-bottom", "3px solid black");
+  $("button").css({"border-bottom": "3px solid black",
+                   "filter": "",
+                  });
+  $(button_id).css({"border-bottom": "3px solid black",
+                    "filter": "brightness(125%)",
+                   });
   localStorage.highlighted_button = button_id;
 }
 
