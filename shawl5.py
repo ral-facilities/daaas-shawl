@@ -77,8 +77,8 @@ def term_rsync_up():
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    local_path = flask.request.form.get("local_path")
-    remote_path = flask.request.form.get("remote_path")
+    local_path = flask.request.form.get("local_path").strip().rstrip("/")
+    remote_path = flask.request.form.get("remote_path").strip().rstrip("/")
     run_utils.run_term_rsync_up(hostname, username, password, local_path, remote_path)
     return "OK"
 
@@ -89,8 +89,8 @@ def term_rsync_down():
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    local_path = flask.request.form.get("local_path")
-    remote_path = flask.request.form.get("remote_path")
+    local_path = flask.request.form.get("local_path").strip().rstrip("/")
+    remote_path = flask.request.form.get("remote_path").strip().rstrip("/")
     run_utils.run_term_rsync_down(hostname, username, password, local_path, remote_path)
     return "OK"
 
