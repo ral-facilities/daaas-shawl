@@ -99,17 +99,18 @@ $("#filebrowser").click(function() {
   });
 });
 
-$("#cancel_all_jobs").click(function() {
+$("#term_remote_shell").click(function() {
   save_form();
-  highlight_button("#cancel_all_jobs")
+  highlight_button("#term_remote_shell")
 
   $.ajax({
     method: "POST",
-    url: "/api/cancel_all_jobs",
+    url: "/api/remote_shell",
     data: {
       hostname: $("#hostname").val(),
       username: $("#username").val(),
       password: $("#password").val(),
+      remote_path: $("#remote_path").val(),
     }
   });
 });

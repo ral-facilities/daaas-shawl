@@ -48,14 +48,14 @@ def term_watch_queue():
     return "OK"
 
 
-@app.route("/api/cancel_all_jobs", methods=["POST"])
-def term_cancel_all_jobs():
+@app.route("/api/remote_shell", methods=["POST"])
+def term_remote_shell():
     """Test endpoint."""
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    ssh_cmd = "scancel -u $(whoami)"
-    run_utils.run_term_ssh_cmd(hostname, username, password, ssh_cmd)
+    remote_path = flask.request.form.get("remote_path")
+    run_utils.run_term_ssh(hostname, username, password, remote_path)
     return "OK"
 
 
