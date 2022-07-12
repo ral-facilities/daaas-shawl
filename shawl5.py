@@ -48,6 +48,17 @@ def term_watch_queue():
     return "OK"
 
 
+@app.route("/api/cancel_all_jobs", methods=["POST"])
+def term_cancel_all_jobs():
+    """Test endpoint."""
+    hostname = flask.request.form.get("hostname")
+    username = flask.request.form.get("username")
+    password = flask.request.form.get("password")
+    ssh_cmd = "scancel -u $(whoami)"
+    run_utils.run_term_ssh_cmd(hostname, username, password, ssh_cmd)
+    return "OK"
+
+
 @app.route("/api/run", methods=["POST"])
 def term_run():
     """Test endpoint."""

@@ -99,4 +99,19 @@ $("#filebrowser").click(function() {
   });
 });
 
+$("#cancel_all_jobs").click(function() {
+  save_form();
+  highlight_button("#cancel_all_jobs")
+
+  $.ajax({
+    method: "POST",
+    url: "/api/cancel_all_jobs",
+    data: {
+      hostname: $("#hostname").val(),
+      username: $("#username").val(),
+      password: $("#password").val(),
+    }
+  });
+});
+
 load_form();
