@@ -1,4 +1,5 @@
 function save_form() {
+  // save settings to localstorage
   localStorage.hostname = $("#hostname").val();
   localStorage.username = $("#username").val();
   localStorage.password = $("#password").val();
@@ -7,6 +8,7 @@ function save_form() {
 };
 
 function load_form() {
+  // load settings from localstorage
   $("#hostname").val(localStorage.hostname);
   $("#username").val(localStorage.username);
   $("#password").val(localStorage.password);
@@ -16,6 +18,7 @@ function load_form() {
 };
 
 function highlight_button(button_id) {
+  // highlight given button (and unhighlight all others)
   $("button").css({"border-bottom": "3px solid black",
                    "filter": "",
                   });
@@ -25,6 +28,7 @@ function highlight_button(button_id) {
   localStorage.highlighted_button = button_id;
 }
 
+// buttons click callbacks
 $("#term_watch_queue").click(function() {
   save_form();
   highlight_button("#term_watch_queue")
