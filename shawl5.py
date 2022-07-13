@@ -112,7 +112,7 @@ def main():
         time.sleep(3)
         webbrowser.open_new(web_url)
 
-    # threading.Thread(target=open_shawl).start()
+    threading.Thread(target=open_shawl).start()
     app.run(port=7322, debug=True)
 
 
