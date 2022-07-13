@@ -86,9 +86,13 @@ background-size: 44.50px 91.25px;
       </div>
     </div>
 
-    <div x-data="{ open: true }" @click="open = ! open" x-show="open" class="w3-panel w3-white">
+    <div x-data="{ open: true }" x-show="open" class="w3-panel w3-white">
       <div class="w3-panel">
+        <h3>Documentation</h3>
+        <h4>Table of Contents</h4>
+        {{ manual_html.toc_html }}
         {{ manual_html }}
+        <button @click="open = ! open" class="w3-btn w3-blue">Hide documentation</button>
       </div>
     </div>
 
