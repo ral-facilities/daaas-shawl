@@ -1,4 +1,4 @@
-### Documentation
+#### Premise
 
 Shawl is a web application that runs locally (on your PC, or on your virtual machine) and provides a simple interface to SLURM.
 
@@ -47,6 +47,31 @@ Once the run is finished, you can download the results by clicking "Sync remote 
 ##### Step 7: Open in file browser
 
 You can optionally browse your files by clicking the "Open file browser" button. This opens a graphical file browser in the local run directory.
+
+#### Other stuff you can do
+
+##### See job logs as it is running
+
+When a job is running, you can watch the output by clicking **Open remote shell** and then running a command such as `tail`:
+
+    tail -f youroutputfile.log
+
+SLURM won't log the program output to a file by default. You will have to configure that in the job file, for example:
+
+    #SBATCH -o dppc.log
+    #SBATCH -e dppc.err
+
+##### Cancel a running job
+
+You can cancel a job by clicking **Open remote shell**, and running:
+
+    scancel <jobid>
+
+You can get the job ID from the watch squeue window.
+
+##### Open a terminal in the local run directory
+
+To open a terminal in the local run directory, click **Open file browser**, then right click in the application between the files (i.e. the space between the file icons), then select **Open Terminal Here**
 
 #### Support and feedback
 
