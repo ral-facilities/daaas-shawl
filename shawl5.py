@@ -105,6 +105,7 @@ def filebrowser():
 
 def main():
     """Run flask server."""
+    debug = False
     web_url = "http://127.0.0.1:7322"
 
     def open_shawl():
@@ -112,8 +113,9 @@ def main():
         time.sleep(3)
         webbrowser.open_new(web_url)
 
-    threading.Thread(target=open_shawl).start()
-    app.run(port=7322, debug=True)
+    if not debug:
+        threading.Thread(target=open_shawl).start()
+    app.run(port=7322, debug=debug)
 
 
 if __name__ == "__main__":
