@@ -39,7 +39,7 @@ def myapp():
 
 @app.route("/api/watch_queue", methods=["POST"])
 def term_watch_queue():
-    """Test endpoint."""
+    """Watch queue api endpoint."""
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
@@ -50,7 +50,7 @@ def term_watch_queue():
 
 @app.route("/api/remote_shell", methods=["POST"])
 def term_remote_shell():
-    """Test endpoint."""
+    """Remote shell api endpoint."""
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
@@ -61,7 +61,7 @@ def term_remote_shell():
 
 @app.route("/api/run", methods=["POST"])
 def term_run():
-    """Test endpoint."""
+    """Terminal run api endpoint."""
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
@@ -73,7 +73,7 @@ def term_run():
 
 @app.route("/api/rsync_up", methods=["POST"])
 def term_rsync_up():
-    """Test endpoint."""
+    """Rsync from local to remote api endpoint."""
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
@@ -85,7 +85,7 @@ def term_rsync_up():
 
 @app.route("/api/rsync_down", methods=["POST"])
 def term_rsync_down():
-    """Test endpoint."""
+    """Rsync from remote to local api endpoint."""
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
@@ -97,7 +97,7 @@ def term_rsync_down():
 
 @app.route("/api/filebrowser", methods=["POST"])
 def filebrowser():
-    """Test endpoint."""
+    """Launch filebrowser api endpoint."""
     local_path = flask.request.form.get("local_path")
     run_utils.run_filebrowser(local_path)
     return "OK"
@@ -109,7 +109,7 @@ def main():
     web_url = "http://127.0.0.1:7322"
 
     def open_shawl():
-        """Open the web browser to the scarf url after 3 seconds."""
+        """Open the web browser to the shawl url after 3 seconds."""
         time.sleep(3)
         webbrowser.open_new(web_url)
 
