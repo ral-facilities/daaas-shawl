@@ -32,7 +32,7 @@ def myapp():
 
     return flask.render_template(
         "app.jinja2",
-        title="Shawl5 dashboard",
+        title="SLURM dashboard",
         manual_html=manual_html,
     )
 
