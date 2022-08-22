@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <title>{{ brand.page_title }}</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="/static/w3.css">
     <link rel="stylesheet" href="/static/Font-Awesome-4.7.0/css/font-awesome.min.css">
@@ -17,8 +17,8 @@
      }
 
      a { text-decoration: none }
-     html,body,h1,h2,h3,h4,h5 {font-family: 'JetBrains Mono', monospace;}
-     body{
+     html,body,h1,h2,h3,h4,h5 { font-family: 'JetBrains Mono', monospace; }
+     body {
          background-image: linear-gradient(116deg, #8a92cc 25%, #ced4f5 25%, #ced4f5 50%, #8a92cc 50%, #8a92cc 75%, #ced4f5 75%, #ced4f5 100%);
          background-size: 44.50px 91.25px;
      }
@@ -32,7 +32,7 @@
         </header>
 
         <header class="w3-container w3-indigo">
-            <h2>{{ icon('home') }} SLURM Dashboard</h2>
+            <h2>{{ icon('home') }} {{ brand.app_name }}</h2>
         </header>
 
         <div class="w3-panel w3-white">
@@ -40,23 +40,27 @@
                 <h3>Settings</h3>
 
                 <p>
-                    <label>{{ icon('server') }} SLURM login node hostname:</label><br/>
-                    <input id="hostname"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="ui1.scarf.rl.ac.uk" required></input>
+                    <label>
+                        {{ icon('server') }} {{ brand.hostname_label }}
+                    </label>
+<br/>
+                    <input id="hostname"    class="w3-input" type="text"      minlength=1 maxlength=2048 value="{{ brand.hostname_value }}" required></input>
+
                 </p>
                 <p>
-                    <label>{{ icon('user') }} SLURM username:</label>
+                    <label>{{ icon('user') }} {{ brand.username_label }}</label>
                     <input id="username"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="username" required></input>
                 </p>
                 <p>
-                    <label>{{ icon('key') }} SLURM password:</label>
+                    <label>{{ icon('key') }} {{ brand.password_label }}</label>
                     <input id="password"    class="w3-input" type="password"  minlength=1 maxlength=2048 placeholder="password" required></input>
                 </p>
                 <p>
-                    <label>{{ icon('desktop') }} local run path:</label>
+                    <label>{{ icon('desktop') }} {{ brand.local_path_label }}</label>
                     <input id="local_path"  class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="local path" required></input>
                 </p>
                 <p>
-                    <label>{{ icon('cloud') }} Remote run path:</label>
+                    <label>{{ icon('cloud') }} {{ brand.remote_path_label }}</label>
                     <input id="remote_path" class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="remote path" required></input>
                 </p>
 
@@ -66,22 +70,22 @@
                 <h3>Actions</h3>
                 <p>{{ icon('info-circle') }} These are in order.<p>
                     <p>
-                        <button id="term_rsync_up"     class="w3-btn w3-blue">{{ icon('cloud-upload') }} Sync local to remote</button>
+                        <button id="term_rsync_up"     class="w3-btn w3-blue">{{ icon('cloud-upload') }} {{ brand.upload_button_text }}</button>
                     </p>
                     <p>
-                        <button id="term_run"          class="w3-btn w3-blue">{{ icon('cog') }} Run job</button>
+                        <button id="term_run"          class="w3-btn w3-blue">{{ icon('cog') }} {{ brand.run_button_text }}</button>
                     </p>
                     <p>
-                        <button id="term_watch_queue"  class="w3-btn w3-blue">{{ icon('search') }} Watch queue</button>
+                        <button id="term_watch_queue"  class="w3-btn w3-blue">{{ icon('search') }} {{ brand.watch_queue_button_text }}</button>
                     </p>
                     <p>
-                        <button id="term_remote_shell" class="w3-btn w3-blue" >{{ icon('terminal') }} Open remote shell</button>
+                        <button id="term_remote_shell" class="w3-btn w3-blue" >{{ icon('terminal') }} {{ brand.remote_shell_button_text }}</button>
                     </p>
                     <p>
-                        <button id="term_rsync_down"   class="w3-btn w3-blue">{{ icon('cloud-download') }} Sync remote to local</button>
+                        <button id="term_rsync_down"   class="w3-btn w3-blue">{{ icon('cloud-download') }} {{ brand.download_button_text }}</button>
                     </p>
                     <p>
-                        <button id="filebrowser"       class="w3-btn w3-blue">{{ icon('folder-open') }} Open file browser</button>
+                        <button id="filebrowser"       class="w3-btn w3-blue">{{ icon('folder-open') }} {{ brand.file_browser_button_text }}</button>
                     </p>
             </div>
         </div>

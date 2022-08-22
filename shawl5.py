@@ -5,16 +5,21 @@ import threading
 import time
 import webbrowser
 import shlex
+import argparse
 
 import flask
 import markdown2
 
 import run_utils
 import web_utils
+import branding
 
 app = flask.Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
+
+brands = branding.load_brands()
+my_brand = "default"
 
 
 @app.context_processor
@@ -26,14 +31,15 @@ def inject_globals():
 @app.route("/")
 def myapp():
     """App page."""
+    brand = brands[my_brand]
     manual_html = markdown2.markdown(
-        open("MANUAL.md").read(), extras=["header-ids", "toc"]
+        open(brand.manual_file).read(), extras=["header-ids", "toc"]
     )
 
     return flask.render_template(
         "app.jinja2",
-        title="SLURM dashboard",
         manual_html=manual_html,
+        brand=brand,
     )
 
 
@@ -105,17 +111,28 @@ def filebrowser():
 
 def main():
     """Run flask server."""
-    debug = False
-    web_url = "http://127.0.0.1:7322"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--no-debug", dest="debug", action="store_false")
+    parser.set_defaults(debug=False)
+    parser.add_argument("--host", nargs="?", default="127.0.0.1")
+    parser.add_argument("--port", nargs="?", default=7322)
+    parser.add_argument("--brand", nargs="?", default="default")
+    args = parser.parse_args()
+    print(args)
+
+    global my_brand
+    my_brand = args.brand
 
     def open_shawl():
         """Open the web browser to the shawl url after 3 seconds."""
         time.sleep(3)
+        web_url = f"http://{args.host}:{args.port}"
         webbrowser.open_new(web_url)
 
-    if not debug:
+    if not args.debug:
         threading.Thread(target=open_shawl).start()
-    app.run(port=7322, debug=debug)
+    app.run(host=args.host, port=args.port, debug=args.debug)
 
 
 if __name__ == "__main__":

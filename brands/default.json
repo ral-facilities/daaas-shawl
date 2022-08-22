@@ -1,0 +1,22 @@
+{
+  "name": "default",
+
+  "app_name": "SLURM Interface",
+  "page_title": "Shawl",
+
+  "hostname_label": "SLURM login node hostname:",
+  "hostname_value": "ui1.scarf.rl.ac.uk",
+  "username_label": "SLURM username:",
+  "password_label": "SLURM password:",
+  "local_path_label": "Local run path:",
+  "remote_path_label": "Remote run path:",
+
+  "upload_button_text": "Sync local to remote",
+  "run_button_text": "Run job",
+  "watch_queue_button_text": "Watch queue",
+  "remote_shell_button_text": "Open remote shell",
+  "download_button_text": "Sync remote to local",
+  "file_browser_button_text": "Open file browser",
+
+  "manual_file": "MANUAL.md"
+}
