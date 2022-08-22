@@ -1,105 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-  <meta charset="UTF-8">
-  <title>{{ title }}</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/static/w3.css">
-  <link rel="stylesheet" href="/static/Font-Awesome-4.7.0/css/font-awesome.min.css">
-  <style>
-    /* latin */
-    @font-face {
-    font-family: 'JetBrains Mono';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url(/static/jetbrainsmono/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8-qxTOlOV.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="/static/w3.css">
+    <link rel="stylesheet" href="/static/Font-Awesome-4.7.0/css/font-awesome.min.css">
+    <style>
+     /* latin */
+     @font-face {
+         font-family: 'JetBrains Mono';
+         font-style: normal;
+         font-weight: 500;
+         font-display: swap;
+         src: url(/static/jetbrainsmono/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8-qxTOlOV.woff2) format('woff2');
+         unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+     }
 
-    a { text-decoration: none }
-    html,body,h1,h2,h3,h4,h5 {font-family: 'JetBrains Mono', monospace;}
-    body{
-background-image: linear-gradient(116deg, #8a92cc 25%, #ced4f5 25%, #ced4f5 50%, #8a92cc 50%, #8a92cc 75%, #ced4f5 75%, #ced4f5 100%);
-background-size: 44.50px 91.25px;
-    }
-  </style>
-  <body class="w3-light-gray">
+     a { text-decoration: none }
+     html,body,h1,h2,h3,h4,h5 {font-family: 'JetBrains Mono', monospace;}
+     body{
+         background-image: linear-gradient(116deg, #8a92cc 25%, #ced4f5 25%, #ced4f5 50%, #8a92cc 50%, #8a92cc 75%, #ced4f5 75%, #ced4f5 100%);
+         background-size: 44.50px 91.25px;
+     }
+    </style>
+    <body class="w3-light-gray">
 
-    <header class="w3-container w3-black w3-bar">
-      <span class="w3-bar-item w3-large w3-right">
-        <a href="https://github.com/dvolk/shawl5">Shawl {{ icon('github') }}</a>
-      </span>
-    </header>
+        <header class="w3-container w3-black w3-bar">
+            <span class="w3-bar-item w3-large w3-right">
+                <a href="https://github.com/dvolk/shawl5">Shawl {{ icon('github') }}</a>
+            </span>
+        </header>
 
-    <header class="w3-container w3-indigo">
-      <h2>{{ icon('home') }} SLURM Dashboard</h2>
-    </header>
+        <header class="w3-container w3-indigo">
+            <h2>{{ icon('home') }} SLURM Dashboard</h2>
+        </header>
 
-    <div class="w3-panel w3-white">
-      <div class="w3-panel w3-half">
-        <h3>Settings</h3>
+        <div class="w3-panel w3-white">
+            <div class="w3-panel w3-half">
+                <h3>Settings</h3>
 
-        <p>
-          <label>{{ icon('server') }} SLURM login node hostname:</label><br/>
-          <input id="hostname"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="ui1.scarf.rl.ac.uk" required></input>
-        </p>
-        <p>
-          <label>{{ icon('user') }} SLURM username:</label>
-          <input id="username"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="username" required></input>
-        </p>
-        <p>
-          <label>{{ icon('key') }} SLURM password:</label>
-          <input id="password"    class="w3-input" type="password"  minlength=1 maxlength=2048 placeholder="password" required></input>
-        </p>
-        <p>
-          <label>{{ icon('desktop') }} local run path:</label>
-          <input id="local_path"  class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="local path" required></input>
-        </p>
-        <p>
-          <label>{{ icon('cloud') }} Remote run path:</label>
-          <input id="remote_path" class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="remote path" required></input>
-        </p>
+                <p>
+                    <label>{{ icon('server') }} SLURM login node hostname:</label><br/>
+                    <input id="hostname"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="ui1.scarf.rl.ac.uk" required></input>
+                </p>
+                <p>
+                    <label>{{ icon('user') }} SLURM username:</label>
+                    <input id="username"    class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="username" required></input>
+                </p>
+                <p>
+                    <label>{{ icon('key') }} SLURM password:</label>
+                    <input id="password"    class="w3-input" type="password"  minlength=1 maxlength=2048 placeholder="password" required></input>
+                </p>
+                <p>
+                    <label>{{ icon('desktop') }} local run path:</label>
+                    <input id="local_path"  class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="local path" required></input>
+                </p>
+                <p>
+                    <label>{{ icon('cloud') }} Remote run path:</label>
+                    <input id="remote_path" class="w3-input" type="text"      minlength=1 maxlength=2048 placeholder="remote path" required></input>
+                </p>
 
-      </div>
+            </div>
 
-      <div class="w3-panel w3-half">
-        <h3>Actions</h3>
-        <p>{{ icon('info-circle') }} These are in order.<p>
-        <p>
-          <button id="term_rsync_up"     class="w3-btn w3-blue">{{ icon('cloud-upload') }} Sync local to remote</button>
-        </p>
-        <p>
-          <button id="term_run"          class="w3-btn w3-blue">{{ icon('cog') }} Run job</button>
-        </p>
-        <p>
-          <button id="term_watch_queue"  class="w3-btn w3-blue">{{ icon('search') }} Watch queue</button>
-        </p>
-        <p>
-          <button id="term_remote_shell" class="w3-btn w3-blue" >{{ icon('terminal') }} Open remote shell</button>
-        </p>
-        <p>
-          <button id="term_rsync_down"   class="w3-btn w3-blue">{{ icon('cloud-download') }} Sync remote to local</button>
-        </p>
-        <p>
-          <button id="filebrowser"       class="w3-btn w3-blue">{{ icon('folder-open') }} Open file browser</button>
-        </p>
-      </div>
-    </div>
+            <div class="w3-panel w3-half">
+                <h3>Actions</h3>
+                <p>{{ icon('info-circle') }} These are in order.<p>
+                    <p>
+                        <button id="term_rsync_up"     class="w3-btn w3-blue">{{ icon('cloud-upload') }} Sync local to remote</button>
+                    </p>
+                    <p>
+                        <button id="term_run"          class="w3-btn w3-blue">{{ icon('cog') }} Run job</button>
+                    </p>
+                    <p>
+                        <button id="term_watch_queue"  class="w3-btn w3-blue">{{ icon('search') }} Watch queue</button>
+                    </p>
+                    <p>
+                        <button id="term_remote_shell" class="w3-btn w3-blue" >{{ icon('terminal') }} Open remote shell</button>
+                    </p>
+                    <p>
+                        <button id="term_rsync_down"   class="w3-btn w3-blue">{{ icon('cloud-download') }} Sync remote to local</button>
+                    </p>
+                    <p>
+                        <button id="filebrowser"       class="w3-btn w3-blue">{{ icon('folder-open') }} Open file browser</button>
+                    </p>
+            </div>
+        </div>
 
-    <div x-data="{ open: true }" x-show="open" class="w3-panel w3-white">
-      <div class="w3-panel">
-        <h3>Documentation</h3>
-        <h4>Table of Contents</h4>
-        {{ manual_html.toc_html }}
-        {{ manual_html }}
-        <button @click="open = ! open" class="w3-btn w3-blue">Hide documentation</button>
-      </div>
-    </div>
+        <div x-data="{ open: true }" x-show="open" class="w3-panel w3-white">
+            <div class="w3-panel">
+                <h3>Documentation</h3>
+                <h4>Table of Contents</h4>
+                {{ manual_html.toc_html }}
+                {{ manual_html }}
+                <button @click="open = ! open" class="w3-btn w3-blue">Hide documentation</button>
+            </div>
+        </div>
 
-    <script type="text/javascript" src="/static/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script type="text/javascript" src="/static/site.js"></script>
+        <script type="text/javascript" src="/static/jquery-3.6.0.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script type="text/javascript" src="/static/site.js"></script>
 
 
-  </body>
+    </body>
 </html>
