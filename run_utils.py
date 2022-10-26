@@ -10,6 +10,13 @@ term_ssh = "xterm"
 term_rsync = "xterm"
 
 
+def run_term_cmd(cmd):
+    """Run command locally, opening a local terminal."""
+    term_cmd = f"bash -c {shlex.quote(cmd)}"
+    logging.info(term_cmd)
+    return subprocess.check_output([term_ssh, "-geometry", "100x32", "-e", term_cmd])
+
+
 def run_term_ssh_cmd(hostname, username, password, ssh_cmd):
     """Run command remotely, opening a local terminal."""
     term_cmd = f"sshpass -p {shlex.quote(password)} ssh -q -t -oUserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {shlex.quote(username)}@{shlex.quote(hostname)} {shlex.quote(ssh_cmd)} ; read -n 1 -p 'Command finished. Press any key to continue.'"

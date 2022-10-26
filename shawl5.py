@@ -6,6 +6,7 @@ import time
 import webbrowser
 import shlex
 import argparse
+import pathlib
 
 import flask
 import markdown2
@@ -71,8 +72,15 @@ def term_run():
     hostname = flask.request.form.get("hostname")
     username = flask.request.form.get("username")
     password = flask.request.form.get("password")
-    remote_path = flask.request.form.get("remote_path")
-    ssh_cmd = f"cd {shlex.quote(remote_path)} ; sbatch $(find . -name '*.job')"
+    local_path = flask.request.form.get("local_path").strip().rstrip("/")
+    remote_path = flask.request.form.get("remote_path").strip().rstrip("/")
+    cmd = f"find {shlex.quote(local_path)} -name '*.job' | ./fzf -1 --layout reverse --preview 'less {{}}' > selected"
+    logging.debug(f"cmd: {cmd}")
+    run_utils.run_term_cmd(cmd).decode().split("\n")
+    sel_job_file = pathlib.Path(pathlib.Path("selected").read_text()).name
+    logging.debug(f"sel_job_file: {sel_job_file}")
+    ssh_cmd = f"cd {shlex.quote(remote_path)} ; sbatch {sel_job_file}"
+    logging.debug(f"ssh_cmd: {ssh_cmd}")
     run_utils.run_term_ssh_cmd(hostname, username, password, ssh_cmd)
     return "OK"
 
