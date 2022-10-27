@@ -74,10 +74,10 @@ def term_run():
     password = flask.request.form.get("password")
     local_path = flask.request.form.get("local_path").strip().rstrip("/")
     remote_path = flask.request.form.get("remote_path").strip().rstrip("/")
-    cmd = f"find {shlex.quote(local_path)} -name '*.job' | ./fzf -1 --header='Select job file to run' --cycle --layout reverse --preview 'less {{}}' > selected"
+    cmd = f"find {shlex.quote(local_path)} -name '*.job' | ./fzf -1 --margin 1,1 --padding 1,1 --header='Select job file to run' --cycle --layout reverse --preview 'less {{}}' > selected"
     logging.debug(f"cmd: {cmd}")
     run_utils.run_term_cmd(cmd).decode().split("\n")
-    sel_job_file = pathlib.Path(pathlib.Path("selected").read_text()).name
+    sel_job_file = pathlib.Path(pathlib.Path("selected").read_text()).name[:-1]
     logging.debug(f"sel_job_file: {sel_job_file}")
     if not sel_job_file:
         logging.warning("No job file selected. Not running any job")
