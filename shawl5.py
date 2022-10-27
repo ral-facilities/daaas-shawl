@@ -82,7 +82,7 @@ def term_run():
     if not sel_job_file:
         logging.warning("No job file selected. Not running any job")
         return "NO_JOB_FILE_SELECTED"
-    ssh_cmd = f"cd {shlex.quote(remote_path)} ; sbatch {sel_job_file}"
+    ssh_cmd = f"cd {shlex.quote(remote_path)} ; sbatch {shlex.quote(sel_job_file)}"
     logging.debug(f"ssh_cmd: {ssh_cmd}")
     run_utils.run_term_ssh_cmd(hostname, username, password, ssh_cmd)
     return "OK"
