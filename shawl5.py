@@ -74,10 +74,16 @@ def term_run():
     password = flask.request.form.get("password")
     local_path = flask.request.form.get("local_path").strip().rstrip("/")
     remote_path = flask.request.form.get("remote_path").strip().rstrip("/")
-    cmd = f"find {shlex.quote(local_path)} -name '*.job' | ./fzf -1 --margin 1,1 --padding 1,1 --header='Select job file to run' --cycle --layout reverse --preview 'less {{}}' > selected"
+    # Present a fzf prompt if there are > 1 job files
+    # nd pipe the output (the job file the user selected) into a file named "selected"
+    cmd = f"find {shlex.quote(local_path)} -name '*.job' -print0 | ./fzf --read0 --print0 -1 --margin 1,1 --padding 1,1 --header='Select job file to run' --cycle --layout reverse --preview 'less {{}}' > selected"
     logging.debug(f"cmd: {cmd}")
-    run_utils.run_term_cmd(cmd).decode().split("\n")
-    sel_job_file = pathlib.Path(pathlib.Path("selected").read_text()).name[:-1]
+    run_utils.run_term_cmd(cmd)
+    # Read the file "selected" to get the job file that the user selected
+    # We only want the file name, not the path, and remove the newline at the end
+    # read_text() seems to already strip null bytes, but is that expected?
+    cont = pathlib.Path("selected").read_bytes().replace(b"\0", b"").decode()
+    sel_job_file = pathlib.Path(cont).name
     logging.debug(f"sel_job_file: {sel_job_file}")
     if not sel_job_file:
         logging.warning("No job file selected. Not running any job")
