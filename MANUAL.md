@@ -22,7 +22,7 @@ For example:
     ├── par_all27_prot_na.prm
     └── par_all36_lipid.prm
 
-You should only have 1 job file per directory and it should have a ".job" file extension.
+You can have more than 1 job file per directory. The job files should have a ".job" file extension.
 
 ##### Step 2: Fill in the settings
 
@@ -34,7 +34,11 @@ You can now click the "Sync local to remote" button on the right side of the scr
 
 ##### Step 4: Start the job
 
-Once the upload is finished, you can click the "Submit job" button to submit your job to the SLURM system. Once the job is submitted, you can close the terminal window.
+Once the upload is finished, you can click the "Submit job" button to submit your job to the SLURM system.
+
+If your input directory contains more than one job file, the terminal will ask you to select one. Press enter to select a job file to run or close the window to not run any. You can only select and run one file at a time.
+
+Once the job is submitted, you can close the terminal window.
 
 ##### Step 5: Watch queue
 
