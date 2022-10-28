@@ -59,6 +59,7 @@ $(document).ready(function(){
         hostname: $("#hostname").val(),
         username: $("#username").val(),
         password: $("#password").val(),
+        local_path: $("#local_path").val(),
         remote_path: $("#remote_path").val(),
       }
     });

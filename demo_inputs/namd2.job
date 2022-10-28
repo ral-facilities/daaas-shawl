@@ -1,0 +1,22 @@
+#!/bin/bash
+##SBATCH -q scarf
+#SBATCH -t 24:0:0
+#SBATCH -o dppc.log
+#SBATCH -e dppc.err
+##SBATCH -N 1
+#SBATCH --exclusive
+#SBATCH --sockets-per-node=2
+#SBATCH --cores-per-socket=12
+#SBATCH --ntasks-per-node=24
+#SBATCH -n 96
+#SBATCH -J dppc-p1
+##SBATCH --cpus-per-task=15
+
+
+#Load desired
+module use /apps/eb/modulefiles/all
+module load NAMD/2.14-foss-2019b-mpi
+#
+
+# Submit the job using mpirun
+mpirun -np 144 namd2 dppc-p1.conf > dppc-p1.out
